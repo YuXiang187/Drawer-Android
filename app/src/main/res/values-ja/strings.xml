@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">設定</string>
+    <string name="settings_start_on_boot">起動時に自動実行</string>
+    <string name="settings_float_button">浮動ボタン</string>
+    <string name="lists">リスト</string>
+    <string name="lists_edit">編集</string>
+    <string name="lists_statisticians">統計</string>
+    <string name="menu_exit">終了</string>
+    <string name="menu_about">このアプリについて</string>
+    <string name="text_get_permission">許可を取得</string>
+    <string name="text_no_permission">許可されていません</string>
+    <string name="menu_theme">テーマ</string>
+    <string name="theme_system">システムに従う</string>
+    <string name="theme_white">ホワイトモード</string>
+    <string name="theme_black">ダークモード</string>
+    <string name="cancel">キャンセル</string>
+    <string name="dialog_number_text">描画数量：%d</string>
+    <string name="dialog_name_text">抽選リスト：%s</string>
+    <string name="menu_run">実行する</string>
+    <string name="optimization">最適化</string>
+    <string name="optimization_battery">バッテリー最適化</string>
+    <string name="optimization_message">バッテリー最適化設定で「Drawer」を見つけて、「最適化されていない」に設定してください。</string>
+    <string name="ok">わかり</string>
+    <string name="dialog_enter_password">パスワード入力</string>
+    <string name="change">変更</string>
+    <string name="confirm">確認</string>
+    <string name="dialog_change_password">パスワード変更</string>
+    <string name="password">パスワード</string>
+    <string name="password_correct">パスワードが正しい</string>
+    <string name="password_incorrect">パスワード誤り</string>
+    <string name="password_limit">制限：%d/20</string>
+    <string name="password_changed">"パスワード変更済み "</string>
+    <string name="menu_save">保存</string>
+    <string name="text_is_exit">アプリケーションを終了しますか？</string>
+    <string name="menu_close">閉じる</string>
+    <string name="back">戻る</string>
+    <string name="text_is_discard">すべての内容を破棄してもよろしいですか？</string>
+    <string name="lists_saved">リストが保存されました</string>
+    <string name="about_message_1">名称ランダム抽出プログラム。</string>
+    <string name="about_message_2">「編集」機能の初期パスワードは123456です。</string>
+    <string name="about_message_3">フローティングボタンの上の空白部分をドラッグしてフローティングボタンを移動できます。</string>
+    <string name="menu_clear">クリア</string>
+    <string name="text_is_null">内容は空にできません</string>
+</resources>

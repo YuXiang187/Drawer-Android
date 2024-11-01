@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.Drawer" parent="Theme.Material3.DynamicColors.Light.NoActionBar" />
+</resources>
