@@ -138,11 +138,13 @@ public class FloatView {
     }
 
     public void hideFloatButton() {
-        if (isButtonViewAdded && floatButtonView.getWindowToken() != null) {
-            windowManager.removeView(floatButtonView);
-            isButtonViewAdded = false;
-        } else {
-            Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
+        if (isButtonViewAdded) {
+            if (floatButtonView.getWindowToken() != null) {
+                windowManager.removeView(floatButtonView);
+                isButtonViewAdded = false;
+            } else {
+                Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
