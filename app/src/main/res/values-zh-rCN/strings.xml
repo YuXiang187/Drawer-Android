@@ -42,4 +42,5 @@
     <string name="about_message_3">拖动悬浮按钮上方的空白区域可拖动悬浮按钮。</string>
     <string name="menu_clear">清除</string>
     <string name="text_is_null">内容不能为空</string>
+    <string name="text_restart_app">重启应用后生效</string>
 </resources>

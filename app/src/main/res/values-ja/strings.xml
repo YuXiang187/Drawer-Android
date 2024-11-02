@@ -14,13 +14,13 @@
     <string name="theme_system">システムに従う</string>
     <string name="theme_white">ホワイトモード</string>
     <string name="theme_black">ダークモード</string>
-    <string name="cancel">キャンセル</string>
+    <string name="cancel">取消</string>
     <string name="dialog_number_text">描画数量：%d</string>
     <string name="dialog_name_text">抽選リスト：%s</string>
     <string name="menu_run">実行する</string>
     <string name="optimization">最適化</string>
-    <string name="optimization_battery">バッテリー最適化</string>
-    <string name="optimization_message">バッテリー最適化設定で「Drawer」を見つけて、「最適化されていない」に設定してください。</string>
+    <string name="optimization_battery">電池の最適化</string>
+    <string name="optimization_message">電池の最適化設定で「Drawer」を見つけて、「最適化されていない」に設定してください。</string>
     <string name="ok">わかり</string>
     <string name="dialog_enter_password">パスワード入力</string>
     <string name="change">変更</string>
@@ -42,4 +42,5 @@
     <string name="about_message_3">フローティングボタンの上の空白部分をドラッグしてフローティングボタンを移動できます。</string>
     <string name="menu_clear">クリア</string>
     <string name="text_is_null">内容は空にできません</string>
+    <string name="text_restart_app">再起動後に有効</string>
 </resources>

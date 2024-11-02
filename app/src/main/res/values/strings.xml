@@ -44,4 +44,5 @@
     <string name="about_message_3">Drag the blank area above the floating button to move the floating button.</string>
     <string name="menu_clear">Clear</string>
     <string name="text_is_null">Content cannot be empty</string>
+    <string name="text_restart_app">Restart the app to take effect</string>
 </resources>

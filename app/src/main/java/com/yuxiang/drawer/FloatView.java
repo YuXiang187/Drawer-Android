@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -25,6 +26,7 @@ public class FloatView {
     boolean isTextViewAdded = false;
     static boolean isButtonViewAdded = false;
 
+    Context context;
     Handler handler;
     StringPool stringPool;
 
@@ -38,6 +40,7 @@ public class FloatView {
     public FloatingActionButton fab;
 
     public FloatView(Context context) {
+        this.context = context;
         stringPool = new StringPool(context);
         handler = new Handler(Looper.getMainLooper());
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -51,7 +54,7 @@ public class FloatView {
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
                 PixelFormat.TRANSLUCENT);
 
         Display display = windowManager.getDefaultDisplay();
@@ -108,7 +111,7 @@ public class FloatView {
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
                 WindowManager.LayoutParams.FORMAT_CHANGED);
         textParams.gravity = Gravity.CENTER;
     }
@@ -135,9 +138,11 @@ public class FloatView {
     }
 
     public void hideFloatButton() {
-        if (isButtonViewAdded) {
+        if (isButtonViewAdded && floatButtonView.getWindowToken() != null) {
             windowManager.removeView(floatButtonView);
             isButtonViewAdded = false;
+        } else {
+            Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
         }
     }
 
