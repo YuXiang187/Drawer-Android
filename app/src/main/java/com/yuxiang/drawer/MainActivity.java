@@ -177,8 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        floatView.hideFloatButton();
-        floatView.hideFloatText();
         super.onDestroy();
     }
 
