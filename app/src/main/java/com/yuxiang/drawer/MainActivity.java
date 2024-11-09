@@ -141,16 +141,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button batteryButton = findViewById(R.id.battery_btn);
-        batteryButton.setOnClickListener(view -> new MaterialAlertDialogBuilder(MainActivity.this)
-                .setTitle(R.string.optimization_battery)
-                .setMessage(R.string.optimization_message)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermission(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, false);
-                    }
-                })
-                .show());
+        batteryButton.setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setTitle(R.string.optimization_battery)
+                        .setMessage(R.string.optimization_message)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> requestPermission(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, false))
+                        .show();
+            } else {
+                Toast.makeText(this, R.string.text_get_permission, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         if (switchPreferences.getBoolean("switch_state", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
