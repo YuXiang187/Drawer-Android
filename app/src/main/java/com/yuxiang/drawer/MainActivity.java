@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                floatView.hideFloatButton();
+                floatView.hideFloatButton(true);
             }
             switchPreferences.edit().putBoolean("switch_state", b).apply();
         });
@@ -177,6 +177,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        floatView.hideFloatButton(false);
+        floatView.hideFloatText();
         super.onDestroy();
     }
 
