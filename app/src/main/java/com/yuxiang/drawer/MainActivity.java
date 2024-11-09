@@ -106,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         floatView.showFloatButton();
                     }
+                } else {
+                    floatView.showFloatButton();
                 }
             } else {
                 floatView.hideFloatButton(true);
@@ -153,6 +155,10 @@ public class MainActivity extends AppCompatActivity {
         if (switchPreferences.getBoolean("switch_state", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this) && !FloatView.isButtonViewAdded) {
+                    floatView.showFloatButton();
+                }
+            } else {
+                if (!FloatView.isButtonViewAdded) {
                     floatView.showFloatButton();
                 }
             }
@@ -203,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(this, R.string.text_no_permission, Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                floatView.run();
             }
         } else if (id == R.id.menu_theme) {
             new MaterialAlertDialogBuilder(MainActivity.this)
