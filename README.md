@@ -18,4 +18,3 @@
 
 * 悬浮窗权限（SYSTEM_ALERT_WINDOW）：用于显示悬浮按钮和悬浮窗体
 * 接收开机广播权限（SYSTEM_ALERT_WINDOW）：用于开机自启
-* （可选）忽略电池优化权限（SYSTEM_ALERT_WINDOW）：用于防止程序意外被系统中断
