@@ -7,7 +7,7 @@
     <string name="lists_edit">Edit</string>
     <string name="lists_statisticians">Statistics</string>
     <string name="app_whole_name" translatable="false">YuXiang Drawer</string>
-    <string name="app_version" translatable="false">1.0</string>
+    <string name="app_version" translatable="false">2.0</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_about">About</string>
     <string name="text_get_permission">Permission granted</string>
@@ -20,13 +20,10 @@
     <string name="dialog_number_text">Number of draws: %d</string>
     <string name="dialog_name_text">Number of lists: %s</string>
     <string name="menu_run">Run</string>
-    <string name="optimization">Optimization</string>
-    <string name="optimization_battery">Battery Optimization</string>
     <string name="ok">OK</string>
     <string name="dialog_enter_password">Enter password</string>
     <string name="change">Change</string>
     <string name="confirm">Confirm</string>
-    <string name="optimization_message">Please find \"Drawer\" in the battery optimization settings and set it to \"not optimized.\"</string>
     <string name="dialog_change_password">Change password</string>
     <string name="password">Password</string>
     <string name="password_correct">Password correct</string>
@@ -45,4 +42,5 @@
     <string name="menu_clear">Clear</string>
     <string name="text_is_null">Content cannot be empty</string>
     <string name="text_restart_app">Restart the app to take effect</string>
+    <string name="lists_edit_tip">Separated by commas (,).</string>
 </resources>

@@ -102,7 +102,10 @@ public class MainActivity extends AppCompatActivity {
             if (b) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (!Settings.canDrawOverlays(this)) {
-                        requestPermission(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, true);
+                        Intent intent = new Intent();
+                        intent.setAction(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                        intent.setData(Uri.parse("package:" + getPackageName()));
+                        overlayPermissionLauncher.launch(intent);
                     } else {
                         floatView.showFloatButton();
                     }
@@ -140,20 +143,6 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        Button batteryButton = findViewById(R.id.battery_btn);
-        batteryButton.setOnClickListener(view -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                new MaterialAlertDialogBuilder(MainActivity.this)
-                        .setTitle(R.string.optimization_battery)
-                        .setMessage(R.string.optimization_message)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> requestPermission(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, false))
-                        .show();
-            } else {
-                Toast.makeText(this, R.string.text_get_permission, Toast.LENGTH_SHORT).show();
-            }
-        });
-
         if (switchPreferences.getBoolean("switch_state", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this) && !FloatView.isButtonViewAdded) {
@@ -169,17 +158,6 @@ public class MainActivity extends AppCompatActivity {
         Intent isBack = getIntent();
         if (isBack.getBooleanExtra("is_back", false)) {
             moveTaskToBack(true);
-        }
-    }
-
-    private void requestPermission(String action, boolean isUri) {
-        Intent intent = new Intent();
-        intent.setAction(action);
-        if (isUri) {
-            intent.setData(Uri.parse("package:" + getPackageName()));
-            overlayPermissionLauncher.launch(intent);
-        } else {
-            startActivity(intent);
         }
     }
 
@@ -204,17 +182,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_run) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (Settings.canDrawOverlays(this)) {
-                    floatView.run();
-                } else {
-                    Toast.makeText(this, R.string.text_no_permission, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                floatView.run();
-            }
-        } else if (id == R.id.menu_theme) {
+        if (id == R.id.menu_theme) {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setTitle(R.string.menu_theme)
                     .setSingleChoiceItems(new String[]{getString(R.string.theme_system), getString(R.string.theme_white), getString(R.string.theme_black)}, themePreferences.getInt("theme", 0), (dialogInterface, i) -> {
@@ -227,12 +195,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menu_close) {
             moveTaskToBack(true);
         } else if (id == R.id.menu_exit) {
-            new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle(R.string.menu_exit)
-                    .setMessage(R.string.text_is_exit)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.confirm, (dialogInterface, i) -> finishAffinity())
-                    .show();
+            finishAffinity();
         } else if (id == R.id.menu_about) {
             LayoutInflater inflater = getLayoutInflater();
             View aboutDialog = inflater.inflate(R.layout.about_dialog, null);

@@ -65,6 +65,13 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String modifiedText = charSequence.toString().replace("\n", ",");
+
+                if (!charSequence.toString().equals(modifiedText)) {
+                    editText.setText(modifiedText);
+                    editText.setSelection(modifiedText.length());
+                }
+
                 int number = editText.getText().toString().split(",").length;
                 countTextView.setText(getString(R.string.dialog_number_text, number));
             }

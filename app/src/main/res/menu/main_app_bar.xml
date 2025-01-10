@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_run"
-        android:icon="@drawable/run"
-        android:title="@string/menu_run"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/menu_theme"
         android:icon="@drawable/color"
         android:title="@string/menu_theme"

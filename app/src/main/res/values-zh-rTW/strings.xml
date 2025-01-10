@@ -18,9 +18,6 @@
     <string name="dialog_number_text">抽取數量：%d</string>
     <string name="dialog_name_text">抽取名單：%s</string>
     <string name="menu_run">運行</string>
-    <string name="optimization">優化</string>
-    <string name="optimization_battery">電池優化</string>
-    <string name="optimization_message">請在電池優化設定中找到“Drawer”，將其設置為“未優化”。</string>
     <string name="ok">好</string>
     <string name="dialog_enter_password">輸入密碼</string>
     <string name="change">更改</string>
@@ -43,4 +40,5 @@
     <string name="menu_clear">清除</string>
     <string name="text_is_null">內容不能為空</string>
     <string name="text_restart_app">重啟應用後生效</string>
+    <string name="lists_edit_tip">使用英文逗號（,）分割。</string>
 </resources>

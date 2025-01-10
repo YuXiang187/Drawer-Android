@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace = "com.yuxiang.drawer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.yuxiang.drawer"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 2
+        versionName = "2.0"
     }
 
     buildTypes {

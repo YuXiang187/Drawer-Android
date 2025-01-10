@@ -18,9 +18,6 @@
     <string name="dialog_number_text">描画数量：%d</string>
     <string name="dialog_name_text">抽選リスト：%s</string>
     <string name="menu_run">実行する</string>
-    <string name="optimization">最適化</string>
-    <string name="optimization_battery">電池の最適化</string>
-    <string name="optimization_message">電池の最適化設定で「Drawer」を見つけて、「最適化されていない」に設定してください。</string>
     <string name="ok">わかり</string>
     <string name="dialog_enter_password">パスワード入力</string>
     <string name="change">変更</string>
@@ -43,4 +40,5 @@
     <string name="menu_clear">クリア</string>
     <string name="text_is_null">内容は空にできません</string>
     <string name="text_restart_app">再起動後に有効</string>
+    <string name="lists_edit_tip">英語のカンマ（,）で区切られる。</string>
 </resources>

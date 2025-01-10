@@ -24,7 +24,7 @@
         android:layout_below="@+id/edit_topAppBar"
         android:layout_margin="16dp"
         android:gravity="top|start"
-        android:hint="@string/lists"
+        android:hint="@string/lists_edit_tip"
         android:inputType="textMultiLine"
         android:padding="16dp"
         android:textColorHint="?attr/colorSecondary"
