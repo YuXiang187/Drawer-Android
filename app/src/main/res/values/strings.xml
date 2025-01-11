@@ -39,8 +39,11 @@
     <string name="about_message_1">Random name selection program.</string>
     <string name="about_message_2">The initial password for the \"Edit\" function is 123456.</string>
     <string name="about_message_3">Drag the blank area above the floating button to move the floating button.</string>
-    <string name="menu_clear">Clear</string>
     <string name="text_is_null">Content cannot be empty</string>
     <string name="text_restart_app">Restart the app to take effect</string>
     <string name="lists_edit_tip">Separated by commas (,).</string>
+    <string name="menu_paste">Paste</string>
+    <string name="dialog_paste_title">Paste from clipboard</string>
+    <string name="dialog_paste_text">The software will read the system clipboard and overwrite the existing text content.</string>
+    <string name="text_paste_null">Clipboard is empty</string>
 </resources>

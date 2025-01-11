@@ -37,8 +37,11 @@
     <string name="about_message_1">名称随机抽取程序。</string>
     <string name="about_message_2">“编辑”功能的初始密码为123456。</string>
     <string name="about_message_3">拖动悬浮按钮上方的空白区域可拖动悬浮按钮。</string>
-    <string name="menu_clear">清除</string>
     <string name="text_is_null">内容不能为空</string>
     <string name="text_restart_app">重启应用后生效</string>
     <string name="lists_edit_tip">使用英文逗号（,）分割。</string>
+    <string name="menu_paste">粘贴</string>
+    <string name="dialog_paste_title">从剪贴板粘贴</string>
+    <string name="dialog_paste_text">软件将读取系统剪贴板，并覆盖原有的文本内容。</string>
+    <string name="text_paste_null">剪贴板为空</string>
 </resources>

@@ -7,9 +7,9 @@
         android:title="@string/menu_save"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/menu_clear"
-        android:icon="@drawable/clear"
-        android:title="@string/menu_clear"
+        android:id="@+id/menu_paste"
+        android:icon="@drawable/paste"
+        android:title="@string/menu_paste"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_close"

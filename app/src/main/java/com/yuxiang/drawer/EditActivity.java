@@ -1,5 +1,7 @@
 package com.yuxiang.drawer;
 
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class EditActivity extends AppCompatActivity {
     EditText editText;
@@ -123,8 +126,25 @@ public class EditActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
             }
-        } else if (id == R.id.menu_clear) {
-            editText.setText("");
+        } else if (id == R.id.menu_paste) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_paste_title)
+                    .setMessage(R.string.dialog_paste_text)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (clipboard != null && clipboard.hasPrimaryClip()) {
+                            CharSequence clipText = Objects.requireNonNull(clipboard.getPrimaryClip()).getItemAt(0).getText();
+                            if (clipText != null && !clipText.equals("")) {
+                                editText.setText(clipText);
+                            } else {
+                                Toast.makeText(this, R.string.text_paste_null, Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, R.string.text_paste_null, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .show();
         } else if (id == R.id.menu_close) {
             showBackDialog();
         }
