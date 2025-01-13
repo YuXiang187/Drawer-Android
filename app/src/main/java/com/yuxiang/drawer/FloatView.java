@@ -1,6 +1,5 @@
 package com.yuxiang.drawer;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -40,7 +39,6 @@ public class FloatView {
     public LinearProgressIndicator linearProgressIndicator;
     public FloatingActionButton fab;
 
-    @SuppressLint("InflateParams")
     public FloatView(Context context) {
         this.context = context;
         stringPool = new StringPool(context);
@@ -49,7 +47,7 @@ public class FloatView {
 
         // Init button layout
         LayoutInflater buttonInflater = LayoutInflater.from(context);
-        floatButtonView = buttonInflater.inflate(R.layout.float_button, null);
+        floatButtonView = buttonInflater.inflate(R.layout.float_button, new FrameLayout(context), false);
 
         buttonParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -65,7 +63,7 @@ public class FloatView {
 
         buttonParams.gravity = Gravity.TOP | Gravity.START;
         buttonParams.x = size.x - 105;
-        buttonParams.y = size.y - 210;
+        buttonParams.y = size.y - 175;
 
         fab = floatButtonView.findViewById(R.id.float_button);
         fab.setOnClickListener(view -> run());

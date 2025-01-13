@@ -46,4 +46,6 @@
     <string name="dialog_paste_title">Paste from clipboard</string>
     <string name="dialog_paste_text">The software will read the system clipboard and overwrite the existing text content.</string>
     <string name="text_paste_null">Clipboard is empty</string>
+    <string name="dialog_password_warning_title">Please change your password</string>
+    <string name="dialog_password_warning_text">You are currently using the initial password. To ensure the list content is not maliciously tampered with, please promptly click the \"Change\" button in the password input popup to change your password.</string>
 </resources>

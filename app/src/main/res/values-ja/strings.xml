@@ -44,4 +44,6 @@
     <string name="dialog_paste_title">クリップボードから貼り付け</string>
     <string name="dialog_paste_text">ソフトウェアはシステムのクリップボードを読み取り、既存のテキスト内容を上書きします。</string>
     <string name="text_paste_null">クリップボードは空です</string>
+    <string name="dialog_password_warning_title">パスワードを変更してください</string>
+    <string name="dialog_password_warning_text">現在、初期パスワードを使用しています。リストの内容が悪意を持って改ざんされないように、パスワード入力ポップアップで「変更」ボタンをクリックして、パスワードを変更してください。</string>
 </resources>

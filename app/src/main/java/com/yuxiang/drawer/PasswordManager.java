@@ -97,8 +97,20 @@ public class PasswordManager {
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
                     String password = Objects.requireNonNull(editText.getText()).toString().trim();
                     if (isPasswordCurrent(password)) {
-                        Intent intent = new Intent(context, EditActivity.class);
-                        context.startActivity(intent);
+                        if (password.equals("123456")) {
+                            new MaterialAlertDialogBuilder(context)
+                                    .setTitle(R.string.dialog_password_warning_title)
+                                    .setMessage(R.string.dialog_password_warning_text)
+                                    .setNegativeButton(R.string.ok, null)
+                                    .setOnDismissListener(dialog -> {
+                                        Intent intent = new Intent(context, EditActivity.class);
+                                        context.startActivity(intent);
+                                    })
+                                    .show();
+                        } else {
+                            Intent intent = new Intent(context, EditActivity.class);
+                            context.startActivity(intent);
+                        }
                     }
                 })
                 .setOnDismissListener(dialogInterface -> editText.setText(""))

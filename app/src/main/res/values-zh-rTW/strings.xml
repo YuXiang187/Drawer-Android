@@ -44,4 +44,6 @@
     <string name="dialog_paste_title">從剪貼簿貼上</string>
     <string name="dialog_paste_text">軟體將讀取系統剪貼簿，並覆蓋原有的文字內容。</string>
     <string name="text_paste_null">剪貼板為空</string>
+    <string name="dialog_password_warning_title">請更改密碼</string>
+    <string name="dialog_password_warning_text">您正在使用初始密碼，為了確保名單內容不被惡意篡改，請即時在密碼輸入彈窗中點擊「更改」按鈕更改密碼。</string>
 </resources>

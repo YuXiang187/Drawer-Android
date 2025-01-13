@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class EditActivity extends AppCompatActivity {
@@ -116,10 +117,21 @@ public class EditActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_save) {
-            if (!editText.getText().toString().isEmpty()) {
-                initPoolPreferences.edit().putString("init", editText.getText().toString()).apply();
-                poolPreferences.edit().putString("pool", editText.getText().toString()).apply();
-                StringPool.initPool = new ArrayList<>(Arrays.asList(editText.getText().toString().split(",")));
+            List<String> list = Arrays.asList(editText.getText().toString().split(","));
+
+            // remove empty element
+            List<String> newList = new ArrayList<>();
+            for (String s : list) {
+                if (!s.isEmpty()) {
+                    newList.add(s);
+                }
+            }
+            list = newList;
+
+            if (!list.isEmpty()) {
+                initPoolPreferences.edit().putString("init", String.join(",", list)).apply();
+                poolPreferences.edit().putString("pool", String.join(",", list)).apply();
+                StringPool.initPool = new ArrayList<>(list);
                 StringPool.reset();
                 Toast.makeText(this, R.string.lists_saved, Toast.LENGTH_SHORT).show();
                 finish();
