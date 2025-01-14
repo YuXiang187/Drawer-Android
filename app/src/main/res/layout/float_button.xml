@@ -19,4 +19,16 @@
         app:pressedTranslationZ="1dp"
         app:srcCompat="@drawable/run" />
 
+    <ImageView
+        android:id="@+id/float_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:contentDescription="@string/menu_run"
+        android:src="@drawable/button"
+        android:visibility="gone" />
+
 </FrameLayout>

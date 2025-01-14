@@ -1,6 +1,7 @@
 package com.yuxiang.drawer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -14,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,21 +31,24 @@ public class FloatView {
     Context context;
     Handler handler;
     StringPool stringPool;
+    SharedPreferences locationPreferences;
 
     private final WindowManager windowManager;
     private final View floatButtonView;
     private final WindowManager.LayoutParams buttonParams;
     private final View floatWindowView;
     private final WindowManager.LayoutParams textParams;
-    public TextView textView;
-    public LinearProgressIndicator linearProgressIndicator;
-    public FloatingActionButton fab;
+    TextView textView;
+    LinearProgressIndicator linearProgressIndicator;
+    FloatingActionButton fab;
+    ImageView imageView;
 
     public FloatView(Context context) {
         this.context = context;
         stringPool = new StringPool(context);
         handler = new Handler(Looper.getMainLooper());
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        locationPreferences = context.getSharedPreferences("location", Context.MODE_PRIVATE);
 
         // Init button layout
         LayoutInflater buttonInflater = LayoutInflater.from(context);
@@ -57,16 +62,13 @@ public class FloatView {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
-        Display display = windowManager.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
         buttonParams.gravity = Gravity.TOP | Gravity.START;
-        buttonParams.x = size.x - 105;
-        buttonParams.y = size.y - 175;
+        resetLocation();
 
         fab = floatButtonView.findViewById(R.id.float_button);
-        fab.setOnClickListener(view -> run());
+        fab.setOnClickListener(v -> run());
+        imageView = floatButtonView.findViewById(R.id.float_image);
+        imageView.setOnClickListener(v -> run());
 
         floatButtonView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
@@ -89,6 +91,10 @@ public class FloatView {
                         windowManager.updateViewLayout(floatButtonView, buttonParams);
                         return true;
                     case MotionEvent.ACTION_UP:
+                        if (MainActivity.isRememberLocation) {
+                            locationPreferences.edit().putInt("locationX", buttonParams.x).apply();
+                            locationPreferences.edit().putInt("locationY", buttonParams.y).apply();
+                        }
                         // Detect if it is a click event (you can determine if it is a click based on the distance moved)
                         if (Math.abs(event.getRawX() - initialTouchX) < 10 && Math.abs(event.getRawY() - initialTouchY) < 10) {
                             v.performClick();
@@ -116,6 +122,24 @@ public class FloatView {
         textParams.gravity = Gravity.CENTER;
     }
 
+    public void isCommonButton(boolean isCommon) {
+        if (isCommon) {
+            fab.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
+        } else {
+            fab.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void resetLocation() {
+        Display display = windowManager.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        buttonParams.x = locationPreferences.getInt("locationX", size.x - 105);
+        buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
+    }
+
     public void showFloatText() {
         if (!isTextViewAdded) {
             windowManager.addView(floatWindowView, textParams);
@@ -125,6 +149,7 @@ public class FloatView {
 
     public void showFloatButton() {
         if (!isButtonViewAdded) {
+            resetLocation();
             windowManager.addView(floatButtonView, buttonParams);
             isButtonViewAdded = true;
         }
@@ -154,7 +179,9 @@ public class FloatView {
         if (!isRun) {
             showFloatText();
             isRun = true;
-            fab.setEnabled(false);
+            if (fab.getVisibility() == View.VISIBLE) {
+                fab.setEnabled(false);
+            }
             linearProgressIndicator.setProgress(100);
             textView.setTextColor(Color.GRAY);
             for (int i = 0; i < 8; i++) {
@@ -179,7 +206,9 @@ public class FloatView {
                 linearProgressIndicator.setProgress(currentProgress);
                 if (currentProgress == 0) {
                     hideFloatText();
-                    fab.setEnabled(true);
+                    if (fab.getVisibility() == View.VISIBLE) {
+                        fab.setEnabled(true);
+                    }
                     isRun = false;
                 }
             }, i * 18);

@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,28 +31,28 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 
 public class MainActivity extends AppCompatActivity {
-    SharedPreferences bootPreferences;
-    SharedPreferences switchPreferences;
-    SharedPreferences themePreferences;
+    static boolean isRememberLocation;
 
+    SharedPreferences settingsPreferences;
     PasswordManager passwordManager;
     ActivityResultLauncher<Intent> overlayPermissionLauncher;
 
     FloatView floatView;
     MaterialSwitch bootSwitch;
     MaterialSwitch floatSwitch;
+    RadioGroup radioGroup;
+    MaterialSwitch locationSwitch;
     Button editButton;
     Button statButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        themePreferences = getSharedPreferences("theme", MODE_PRIVATE);
-        bootPreferences = getSharedPreferences("boot_state", MODE_PRIVATE);
-        switchPreferences = getSharedPreferences("switch_state", MODE_PRIVATE);
+        settingsPreferences = getSharedPreferences("settings", MODE_PRIVATE);
 
-        int themeIndex = themePreferences.getInt("theme", 0);
+        int themeIndex = settingsPreferences.getInt("theme", 0);
         AppCompatDelegate.setDefaultNightMode(themeIndex == 0 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : themeIndex);
 
         super.onCreate(savedInstanceState);
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(this, getString(R.string.text_no_permission), Toast.LENGTH_SHORT).show();
                             floatSwitch.setChecked(false);
-                            switchPreferences.edit().putBoolean("switch_state", false).apply();
+                            settingsPreferences.edit().putBoolean("float_state", false).apply();
                         }
                     }
                 }
@@ -93,11 +94,11 @@ public class MainActivity extends AppCompatActivity {
         floatView = new FloatView(this);
 
         bootSwitch = findViewById(R.id.start_on_boot_switch);
-        bootSwitch.setChecked(bootPreferences.getBoolean("boot_state", false));
-        bootSwitch.setOnCheckedChangeListener((compoundButton, b) -> bootPreferences.edit().putBoolean("boot_state", b).apply());
+        bootSwitch.setChecked(settingsPreferences.getBoolean("boot_state", false));
+        bootSwitch.setOnCheckedChangeListener((compoundButton, b) -> settingsPreferences.edit().putBoolean("boot_state", b).apply());
 
         floatSwitch = findViewById(R.id.float_switch);
-        floatSwitch.setChecked(switchPreferences.getBoolean("switch_state", false));
+        floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         floatSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -114,8 +115,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 floatView.hideFloatButton(true);
+                floatView.locationPreferences.edit().remove("locationX").apply();
+                floatView.locationPreferences.edit().remove("locationY").apply();
             }
-            switchPreferences.edit().putBoolean("switch_state", b).apply();
+            settingsPreferences.edit().putBoolean("float_state", b).apply();
+        });
+
+        radioGroup = findViewById(R.id.radio_group);
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.common_radio_btn) {
+                floatView.isCommonButton(true);
+                settingsPreferences.edit().putBoolean("is_common_button", true).apply();
+            } else if (checkedId == R.id.image_radio_btn) {
+                floatView.isCommonButton(false);
+                settingsPreferences.edit().putBoolean("is_common_button", false).apply();
+            }
+        });
+
+        isRememberLocation = settingsPreferences.getBoolean("is_remember_location", false);
+        locationSwitch = findViewById(R.id.location_switch);
+        locationSwitch.setChecked(isRememberLocation);
+        locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            isRememberLocation = b;
+            settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
         });
 
         editButton = findViewById(R.id.edit_btn);
@@ -143,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        if (switchPreferences.getBoolean("switch_state", false)) {
+        if (settingsPreferences.getBoolean("float_state", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this) && !FloatView.isButtonViewAdded) {
                     floatView.showFloatButton();
@@ -153,6 +175,16 @@ public class MainActivity extends AppCompatActivity {
                     floatView.showFloatButton();
                 }
             }
+        }
+
+        MaterialRadioButton commonRadioButton = findViewById(R.id.common_radio_btn);
+        MaterialRadioButton imageRadioButton = findViewById(R.id.image_radio_btn);
+        if (settingsPreferences.getBoolean("is_common_button", true)) {
+            commonRadioButton.setChecked(true);
+            floatView.isCommonButton(true);
+        } else {
+            imageRadioButton.setChecked(true);
+            floatView.isCommonButton(false);
         }
 
         Intent isBack = getIntent();
@@ -185,8 +217,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.menu_theme) {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setTitle(R.string.menu_theme)
-                    .setSingleChoiceItems(new String[]{getString(R.string.theme_system), getString(R.string.theme_white), getString(R.string.theme_black)}, themePreferences.getInt("theme", 0), (dialogInterface, i) -> {
-                        themePreferences.edit().putInt("theme", i).apply();
+                    .setSingleChoiceItems(new String[]{getString(R.string.theme_system), getString(R.string.theme_white), getString(R.string.theme_black)}, settingsPreferences.getInt("theme", 0), (dialogInterface, i) -> {
+                        settingsPreferences.edit().putInt("theme", i).apply();
                         dialogInterface.dismiss();
                         AppCompatDelegate.setDefaultNightMode(i == 0 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : i);
                     })
@@ -195,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menu_close) {
             moveTaskToBack(true);
         } else if (id == R.id.menu_exit) {
+            floatView.hideFloatButton(false);
+            floatView.hideFloatText();
             finishAffinity();
         } else if (id == R.id.menu_about) {
             LayoutInflater inflater = getLayoutInflater();

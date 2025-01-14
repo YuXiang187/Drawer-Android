@@ -46,4 +46,7 @@
     <string name="text_paste_null">剪贴板为空</string>
     <string name="dialog_password_warning_title">请更改密码</string>
     <string name="dialog_password_warning_text">您正在使用初始密码，为确保名单内容不被恶意篡改，请及时在密码输入弹窗中点击“更改”按钮更改密码。</string>
+    <string name="settings_location_switch">记住位置</string>
+    <string name="radio_common_button">普通按钮</string>
+    <string name="radio_image_button">图片按钮</string>
 </resources>

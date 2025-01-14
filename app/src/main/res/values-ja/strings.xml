@@ -46,4 +46,7 @@
     <string name="text_paste_null">クリップボードは空です</string>
     <string name="dialog_password_warning_title">パスワードを変更してください</string>
     <string name="dialog_password_warning_text">現在、初期パスワードを使用しています。リストの内容が悪意を持って改ざんされないように、パスワード入力ポップアップで「変更」ボタンをクリックして、パスワードを変更してください。</string>
+    <string name="settings_location_switch">場所を記憶する</string>
+    <string name="radio_common_button">通常ボタン</string>
+    <string name="radio_image_button">画像ボタン</string>
 </resources>
