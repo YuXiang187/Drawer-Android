@@ -181,10 +181,8 @@ public class MainActivity extends AppCompatActivity {
         MaterialRadioButton imageRadioButton = findViewById(R.id.image_radio_btn);
         if (settingsPreferences.getBoolean("is_common_button", true)) {
             commonRadioButton.setChecked(true);
-            floatView.isCommonButton(true);
         } else {
             imageRadioButton.setChecked(true);
-            floatView.isCommonButton(false);
         }
 
         Intent isBack = getIntent();
