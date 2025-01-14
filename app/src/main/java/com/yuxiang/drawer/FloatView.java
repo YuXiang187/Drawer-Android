@@ -60,7 +60,7 @@ public class FloatView {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
+                PixelFormat.RGBA_8888);
 
         buttonParams.gravity = Gravity.TOP | Gravity.START;
         resetLocation();
