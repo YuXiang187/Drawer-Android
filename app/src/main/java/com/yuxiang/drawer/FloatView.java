@@ -179,9 +179,7 @@ public class FloatView {
         if (!isRun) {
             showFloatText();
             isRun = true;
-            if (fab.getVisibility() == View.VISIBLE) {
-                fab.setEnabled(false);
-            }
+            fab.setEnabled(false);
             linearProgressIndicator.setProgress(100);
             textView.setTextColor(Color.GRAY);
             for (int i = 0; i < 8; i++) {
@@ -206,9 +204,7 @@ public class FloatView {
                 linearProgressIndicator.setProgress(currentProgress);
                 if (currentProgress == 0) {
                     hideFloatText();
-                    if (fab.getVisibility() == View.VISIBLE) {
-                        fab.setEnabled(true);
-                    }
+                    fab.setEnabled(true);
                     isRun = false;
                 }
             }, i * 18);
