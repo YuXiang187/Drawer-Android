@@ -7,7 +7,7 @@
     <string name="lists_edit">Edit</string>
     <string name="lists_statisticians">Statistics</string>
     <string name="app_whole_name" translatable="false">YuXiang Drawer</string>
-    <string name="app_version" translatable="false">2.0</string>
+    <string name="app_version" translatable="false">2.1</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_about">About</string>
     <string name="text_get_permission">Permission granted</string>
@@ -22,16 +22,12 @@
     <string name="menu_run">Run</string>
     <string name="ok">OK</string>
     <string name="dialog_enter_password">Enter password</string>
-    <string name="change">Change</string>
     <string name="confirm">Confirm</string>
     <string name="dialog_change_password">Change password</string>
     <string name="password">Password</string>
-    <string name="password_correct">Password correct</string>
     <string name="password_incorrect">Incorrect password</string>
     <string name="password_limit">Limit: %d/20</string>
     <string name="password_changed">Password has been changed</string>
-    <string name="menu_save">Save</string>
-    <string name="text_is_exit">Do you want to exit the application?</string>
     <string name="menu_close">Close</string>
     <string name="back">Back</string>
     <string name="text_is_discard">Are you sure you want to discard all content?</string>
@@ -41,14 +37,32 @@
     <string name="about_message_3">Drag the blank area above the floating button to move the floating button.</string>
     <string name="text_is_null">Content cannot be empty</string>
     <string name="text_restart_app">Restart the app to take effect</string>
-    <string name="lists_edit_tip">Separated by commas (,).</string>
-    <string name="menu_paste">Paste</string>
-    <string name="dialog_paste_title">Paste from clipboard</string>
-    <string name="dialog_paste_text">The software will read the system clipboard and overwrite the existing text content.</string>
-    <string name="text_paste_null">Clipboard is empty</string>
+    <string name="lists_edit_tip">Separated by commas (,)</string>
     <string name="dialog_password_warning_title">Please change your password</string>
-    <string name="dialog_password_warning_text">You are currently using the initial password. To ensure the list content is not maliciously tampered with, please promptly click the \"Change\" button in the password input popup to change your password.</string>
+    <string name="dialog_password_warning_text">You are currently using the initial password. To prevent the list contents from being maliciously tampered with, please change the password by clicking the “Password” button in the toolbar at the bottom of the editing page as soon as possible.</string>
     <string name="settings_location_switch">Remember location</string>
     <string name="radio_common_button">Common button</string>
     <string name="radio_image_button">Image button</string>
+    <string name="action_import">Import</string>
+    <string name="action_export">Export</string>
+    <string name="action_find">Find</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_help">Help</string>
+    <string name="action_apply">Apply</string>
+    <string name="edit_add_hint">Add a name, press Enter</string>
+    <string name="content_desc_add">Add</string>
+    <string name="content_desc_remove">Remove selected</string>
+    <string name="text_total">Total: %d</string>
+    <string name="text_selected">Selected: %d</string>
+    <string name="find_hint">Enter a name to find</string>
+    <string name="find_done">Search finished.</string>
+    <string name="no_comma">Please do not include English commas ","</string>
+    <string name="clear_confirm">Clear all content?</string>
+    <string name="help_title">Help</string>
+    <string name="help_text">The list syntax is:\n\nName1,Name2,Name3,…</string>
+    <string name="password_empty">Password cannot be empty</string>
+    <string name="import_confirm_title">Import confirmation</string>
+    <string name="import_confirm_message">Import by appending or overwriting?</string>
+    <string name="import_append">Append</string>
+    <string name="import_overwrite">Overwrite</string>
 </resources>

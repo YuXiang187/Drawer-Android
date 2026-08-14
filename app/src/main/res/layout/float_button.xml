@@ -17,7 +17,7 @@
         app:elevation="1dp"
         app:hoveredFocusedTranslationZ="1dp"
         app:pressedTranslationZ="1dp"
-        app:srcCompat="@drawable/run" />
+        app:srcCompat="@drawable/ic_run" />
 
     <ImageView
         android:id="@+id/float_image"
@@ -28,7 +28,7 @@
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="6dp"
         android:contentDescription="@string/menu_run"
-        android:src="@drawable/button"
+        android:src="@drawable/ic_button"
         android:visibility="gone" />
 
 </FrameLayout>

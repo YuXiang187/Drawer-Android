@@ -41,7 +41,7 @@ public class PasswordManager {
         layout.setPadding(50, 50, 50, 16);
 
         passwordImage = new ImageView(context);
-        passwordImage.setImageResource(R.drawable.password);
+        passwordImage.setImageResource(R.drawable.ic_password);
 
         textInputLayout = new TextInputLayout(context);
         textInputLayout.setHint(R.string.password);
@@ -75,7 +75,6 @@ public class PasswordManager {
 
     public boolean isPasswordCurrent(String password) {
         if (password.equals(passwordPreferences.getString("password", "123456"))) {
-            Toast.makeText(context, R.string.password_correct, Toast.LENGTH_SHORT).show();
             return true;
         } else {
             Toast.makeText(context, R.string.password_incorrect, Toast.LENGTH_SHORT).show();
@@ -87,12 +86,6 @@ public class PasswordManager {
         refreshLayout(customTitle(R.string.dialog_enter_password));
         new MaterialAlertDialogBuilder(context)
                 .setView(layout)
-                .setNeutralButton(R.string.change, (dialogInterface, i) -> {
-                    String password = Objects.requireNonNull(editText.getText()).toString().trim();
-                    if (isPasswordCurrent(password)) {
-                        changePassword();
-                    }
-                })
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
                     String password = Objects.requireNonNull(editText.getText()).toString().trim();
@@ -124,6 +117,10 @@ public class PasswordManager {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
                     String password = Objects.requireNonNull(editText.getText()).toString().trim();
+                    if (password.isEmpty()) {
+                        Toast.makeText(context, R.string.password_empty, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     passwordPreferences.edit().putString("password", password).apply();
                     Toast.makeText(context, R.string.password_changed, Toast.LENGTH_SHORT).show();
                 })
