@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +40,6 @@ public class FloatView {
     TextView textView;
     LinearProgressIndicator linearProgressIndicator;
     FloatingActionButton fab;
-    ImageView imageView;
 
     public FloatView(Context context) {
         this.context = context;
@@ -67,8 +65,6 @@ public class FloatView {
 
         fab = floatButtonView.findViewById(R.id.float_button);
         fab.setOnClickListener(v -> run());
-        imageView = floatButtonView.findViewById(R.id.float_image);
-        imageView.setOnClickListener(v -> run());
 
         floatButtonView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
@@ -120,16 +116,6 @@ public class FloatView {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 WindowManager.LayoutParams.FORMAT_CHANGED);
         textParams.gravity = Gravity.CENTER;
-    }
-
-    public void isCommonButton(boolean isCommon) {
-        if (isCommon) {
-            fab.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.GONE);
-        } else {
-            fab.setVisibility(View.GONE);
-            imageView.setVisibility(View.VISIBLE);
-        }
     }
 
     private void resetLocation() {

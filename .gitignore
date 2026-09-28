@@ -4,5 +4,8 @@
 # idea
 .idea/
 
+# app build
+app/build/
+
 # local settings
 local.properties

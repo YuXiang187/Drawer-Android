@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +30,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.radiobutton.MaterialRadioButton;
 
 public class MainActivity extends AppCompatActivity {
     static boolean isRememberLocation;
@@ -43,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     FloatView floatView;
     MaterialSwitch bootSwitch;
     MaterialSwitch floatSwitch;
-    RadioGroup radioGroup;
     MaterialSwitch locationSwitch;
     Button editButton;
     Button statButton;
@@ -121,17 +118,6 @@ public class MainActivity extends AppCompatActivity {
             settingsPreferences.edit().putBoolean("float_state", b).apply();
         });
 
-        radioGroup = findViewById(R.id.radio_group);
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.common_radio_btn) {
-                floatView.isCommonButton(true);
-                settingsPreferences.edit().putBoolean("is_common_button", true).apply();
-            } else if (checkedId == R.id.image_radio_btn) {
-                floatView.isCommonButton(false);
-                settingsPreferences.edit().putBoolean("is_common_button", false).apply();
-            }
-        });
-
         isRememberLocation = settingsPreferences.getBoolean("is_remember_location", false);
         locationSwitch = findViewById(R.id.location_switch);
         locationSwitch.setChecked(isRememberLocation);
@@ -175,14 +161,6 @@ public class MainActivity extends AppCompatActivity {
                     floatView.showFloatButton();
                 }
             }
-        }
-
-        MaterialRadioButton commonRadioButton = findViewById(R.id.common_radio_btn);
-        MaterialRadioButton imageRadioButton = findViewById(R.id.image_radio_btn);
-        if (settingsPreferences.getBoolean("is_common_button", true)) {
-            commonRadioButton.setChecked(true);
-        } else {
-            imageRadioButton.setChecked(true);
         }
 
         Intent isBack = getIntent();
