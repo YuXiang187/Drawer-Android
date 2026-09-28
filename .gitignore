@@ -1,0 +1,8 @@
+# gradle
+.gradle/
+
+# idea
+.idea/
+
+# local settings
+local.properties
