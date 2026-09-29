@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     Button drawButton;
     Button editButton;
     Button statButton;
+    ImageButton resetLocationButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,13 +126,16 @@ public class MainActivity extends AppCompatActivity {
         locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             isRememberLocation = b;
             settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
-            if (b) {
-                floatView.applySavedLocation();
-            } else {
-                floatView.locationPreferences.edit().remove("locationX").apply();
-                floatView.locationPreferences.edit().remove("locationY").apply();
-            }
         });
+
+        resetLocationButton = findViewById(R.id.reset_location_button);
+        TooltipCompat.setTooltipText(resetLocationButton, getString(R.string.action_reset_location));
+        resetLocationButton.setOnClickListener(view -> new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.action_reset_location)
+                .setMessage(R.string.dialog_reset_location_text)
+                .setPositiveButton(R.string.confirm, (dialogInterface, i) -> floatView.resetFloatButtonLocation())
+                .setNegativeButton(R.string.cancel, null)
+                .show());
 
         editButton = findViewById(R.id.edit_btn);
         editButton.setOnClickListener(view -> passwordManager.enterPassword());

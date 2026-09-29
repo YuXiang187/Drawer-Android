@@ -138,9 +138,10 @@ public class FloatView {
         buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
     }
 
-    public void applySavedLocation() {
+    public void resetFloatButtonLocation() {
+        locationPreferences.edit().remove("locationX").remove("locationY").apply();
+        resetLocation();
         if (isButtonViewAdded) {
-            resetLocation();
             windowManager.updateViewLayout(floatButtonView, buttonParams);
         }
     }

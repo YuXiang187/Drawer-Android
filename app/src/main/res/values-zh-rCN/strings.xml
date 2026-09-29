@@ -41,6 +41,8 @@
     <string name="dialog_password_warning_title">请更改密码</string>
     <string name="dialog_password_warning_text">您正在使用初始密码，为确保名单内容不被恶意篡改，请及时在编辑页面下方的工具栏中单击“密码”按钮更改密码。</string>
     <string name="settings_location_switch">记住位置</string>
+    <string name="action_reset_location">重置位置</string>
+    <string name="dialog_reset_location_text">确定要将悬浮按钮重置到默认位置吗？</string>
     <string name="action_import">导入</string>
     <string name="action_export">导出</string>
     <string name="action_find">查找</string>

@@ -43,6 +43,8 @@
     <string name="dialog_password_warning_title">Please change your password</string>
     <string name="dialog_password_warning_text">You are currently using the initial password. To prevent the list contents from being maliciously tampered with, please change the password by clicking the “Password” button in the toolbar at the bottom of the editing page as soon as possible.</string>
     <string name="settings_location_switch">Remember location</string>
+    <string name="action_reset_location">Reset location</string>
+    <string name="dialog_reset_location_text">Reset the floating button to its default position?</string>
     <string name="action_import">Import</string>
     <string name="action_export">Export</string>
     <string name="action_find">Find</string>

@@ -8,6 +8,7 @@
         <item name="android:paddingEnd">@dimen/spacing_l</item>
         <item name="android:paddingTop">@dimen/spacing_l</item>
         <item name="android:paddingBottom">@dimen/spacing_s</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
@@ -18,6 +19,7 @@
         <item name="android:minHeight">@dimen/list_item_min_height</item>
         <item name="android:paddingStart">@dimen/spacing_l</item>
         <item name="android:paddingEnd">@dimen/spacing_l</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
     </style>
 
