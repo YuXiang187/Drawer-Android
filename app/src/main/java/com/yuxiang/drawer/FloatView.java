@@ -126,9 +126,12 @@ public class FloatView {
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FORMAT_CHANGED);
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.RGBA_8888);
         textParams.gravity = Gravity.CENTER;
+        // Let the window span the display cutout (notch/punch-hole).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            textParams.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
     }
 
     private void resetLocation() {
