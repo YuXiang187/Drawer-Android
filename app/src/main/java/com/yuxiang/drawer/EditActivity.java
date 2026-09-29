@@ -360,10 +360,9 @@ public class EditActivity extends AppCompatActivity {
             return;
         }
 
-        initPoolPreferences.edit().putString("init", String.join(",", cleanList)).apply();
-        poolPreferences.edit().putString("pool", String.join(",", cleanList)).apply();
-        StringPool.initPool = new ArrayList<>(cleanList);
-        StringPool.reset();
+        StringPool.setNames(new ArrayList<>(cleanList));
+        initPoolPreferences.edit().putString("init", String.join(",", StringPool.initPool)).apply();
+        poolPreferences.edit().putString("pool", String.join(",", StringPool.pool)).apply();
 
         StringBuilder result = new StringBuilder();
         for (String item : cleanList) {

@@ -2,7 +2,6 @@ package com.yuxiang.drawer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -23,9 +22,9 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class FloatView {
     int defaultColor;
-    boolean isRun = false;
     boolean isTextViewAdded = false;
     static boolean isButtonViewAdded = false;
+    private static final long COUNTDOWN_INTERVAL_MS = 14;
 
     Context context;
     Handler handler;
@@ -40,6 +39,20 @@ public class FloatView {
     TextView textView;
     LinearProgressIndicator linearProgressIndicator;
     FloatingActionButton fab;
+    int progressValue = 100;
+
+    private final Runnable countdownRunnable = new Runnable() {
+        @Override
+        public void run() {
+            progressValue--;
+            linearProgressIndicator.setProgressCompat(Math.max(progressValue, 0), false);
+            if (progressValue <= 0) {
+                hideFloatText();
+                return;
+            }
+            handler.postDelayed(this, COUNTDOWN_INTERVAL_MS);
+        }
+    };
 
     public FloatView(Context context) {
         this.context = context;
@@ -113,7 +126,7 @@ public class FloatView {
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FORMAT_CHANGED);
         textParams.gravity = Gravity.CENTER;
     }
@@ -142,6 +155,7 @@ public class FloatView {
     }
 
     public void hideFloatText() {
+        handler.removeCallbacks(countdownRunnable);
         if (isTextViewAdded) {
             windowManager.removeView(floatWindowView);
             isTextViewAdded = false;
@@ -162,38 +176,21 @@ public class FloatView {
     }
 
     public void run() {
-        if (!isRun) {
-            showFloatText();
-            isRun = true;
-            fab.setEnabled(false);
-            linearProgressIndicator.setProgress(100);
-            textView.setTextColor(Color.GRAY);
-            for (int i = 0; i < 8; i++) {
-                final int index = i;
-                handler.postDelayed(() -> {
-                    textView.setText(stringPool.get());
-                    if (index == 7) {
-                        textView.setTextColor(defaultColor);
-                        stringPool.remove(textView.getText().toString());
-                        stringPool.save();
-                        unVisible();
-                    }
-                }, i * 60);
-            }
+        String result = stringPool.draw();
+        if (result.isEmpty()) {
+            Toast.makeText(context, R.string.text_is_null, Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
 
-    private void unVisible() {
-        for (int i = 0; i <= 100; i++) {
-            final int currentProgress = 100 - i;
-            handler.postDelayed(() -> {
-                linearProgressIndicator.setProgress(currentProgress);
-                if (currentProgress == 0) {
-                    hideFloatText();
-                    fab.setEnabled(true);
-                    isRun = false;
-                }
-            }, i * 18);
-        }
+        stringPool.save();
+
+        showFloatText();
+        textView.setTextColor(defaultColor);
+        textView.setText(result);
+
+        handler.removeCallbacks(countdownRunnable);
+        progressValue = 100;
+        linearProgressIndicator.setProgressCompat(100, false);
+        handler.postDelayed(countdownRunnable, COUNTDOWN_INTERVAL_MS);
     }
 }
