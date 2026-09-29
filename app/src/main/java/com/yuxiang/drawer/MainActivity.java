@@ -113,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 floatView.hideFloatButton(true);
-                floatView.locationPreferences.edit().remove("locationX").apply();
-                floatView.locationPreferences.edit().remove("locationY").apply();
             }
             settingsPreferences.edit().putBoolean("float_state", b).apply();
         });
@@ -125,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
         locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             isRememberLocation = b;
             settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
+            if (b) {
+                floatView.applySavedLocation();
+            } else {
+                floatView.locationPreferences.edit().remove("locationX").apply();
+                floatView.locationPreferences.edit().remove("locationY").apply();
+            }
         });
 
         editButton = findViewById(R.id.edit_btn);
