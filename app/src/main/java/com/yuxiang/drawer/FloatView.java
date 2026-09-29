@@ -24,7 +24,7 @@ public class FloatView {
     int defaultColor;
     boolean isTextViewAdded = false;
     static boolean isButtonViewAdded = false;
-    private static final long COUNTDOWN_INTERVAL_MS = 14;
+    private static final long COUNTDOWN_INTERVAL_MS = 12;
 
     Context context;
     Handler handler;
