@@ -19,20 +19,24 @@
     <EditText
         android:id="@+id/edit_text_area"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:layout_margin="12dp"
+        android:layout_height="@dimen/edit_text_area_height"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:layout_marginTop="@dimen/spacing_m"
+        android:layout_marginEnd="@dimen/spacing_l"
+        android:layout_marginBottom="@dimen/spacing_m"
         android:gravity="top|start"
         android:hint="@string/lists_edit_tip"
         android:inputType="textMultiLine"
-        android:padding="12dp"
-        android:textColorHint="?attr/colorSecondary"
+        android:padding="@dimen/spacing_m"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColorHint="?attr/colorOnSurfaceVariant"
         tools:ignore="Autofill,VisualLintTextFieldSize" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:layout_marginEnd="@dimen/spacing_l"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -49,7 +53,8 @@
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -57,6 +62,7 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_s"
             android:contentDescription="@string/content_desc_add"
             app:icon="@drawable/ic_add" />
 
@@ -65,6 +71,7 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_xs"
             android:contentDescription="@string/content_desc_remove"
             app:icon="@drawable/ic_delete" />
     </LinearLayout>
@@ -73,34 +80,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="16dp">
+        android:paddingStart="@dimen/spacing_l"
+        android:paddingTop="@dimen/spacing_xs"
+        android:paddingEnd="@dimen/spacing_l">
 
         <TextView
             android:id="@+id/total_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="?attr/colorSecondary"
-            android:textSize="13sp" />
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/selected_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorSecondary"
-            android:textSize="13sp" />
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:layout_marginEnd="@dimen/spacing_l"
+        android:layout_marginBottom="@dimen/spacing_xs"
         android:layout_weight="1"
         android:choiceMode="multipleChoice"
         android:divider="@android:color/transparent"
@@ -115,19 +122,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="?attr/colorSurfaceContainer"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp">
+        android:paddingTop="@dimen/spacing_s"
+        android:paddingBottom="@dimen/spacing_s">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bottom_import_btn"
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginStart="@dimen/spacing_s"
+            android:layout_marginEnd="@dimen/spacing_s"
             android:contentDescription="@string/action_import"
             app:icon="@drawable/ic_import"
             app:iconTint="?attr/colorOnSurfaceVariant" />
@@ -137,8 +144,8 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginStart="@dimen/spacing_s"
+            android:layout_marginEnd="@dimen/spacing_s"
             android:contentDescription="@string/action_export"
             app:icon="@drawable/ic_export"
             app:iconTint="?attr/colorOnSurfaceVariant" />
@@ -148,8 +155,8 @@
             style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginStart="@dimen/spacing_s"
+            android:layout_marginEnd="@dimen/spacing_s"
             android:contentDescription="@string/action_find"
             app:icon="@drawable/ic_search"
             app:iconTint="?attr/colorOnSecondaryContainer" />
@@ -159,8 +166,8 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginStart="@dimen/spacing_s"
+            android:layout_marginEnd="@dimen/spacing_s"
             android:contentDescription="@string/action_clear"
             app:icon="@drawable/ic_clear"
             app:iconTint="?attr/colorOnSurfaceVariant" />
@@ -170,8 +177,8 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginStart="@dimen/spacing_s"
+            android:layout_marginEnd="@dimen/spacing_s"
             android:contentDescription="@string/password"
             app:icon="@drawable/ic_password"
             app:iconTint="?attr/colorOnSurfaceVariant" />

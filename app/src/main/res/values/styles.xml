@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.Drawer.SectionHeader" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/spacing_l</item>
+        <item name="android:paddingEnd">@dimen/spacing_l</item>
+        <item name="android:paddingTop">@dimen/spacing_l</item>
+        <item name="android:paddingBottom">@dimen/spacing_s</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.Drawer.SettingSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/list_item_min_height</item>
+        <item name="android:paddingStart">@dimen/spacing_l</item>
+        <item name="android:paddingEnd">@dimen/spacing_l</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    </style>
+
+    <style name="Widget.Drawer.ListDivider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginStart">@dimen/spacing_l</item>
+        <item name="android:layout_marginEnd">@dimen/spacing_l</item>
+        <item name="android:background">?attr/colorOutlineVariant</item>
+    </style>
+</resources>

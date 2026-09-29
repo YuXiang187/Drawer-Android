@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="float_window_width">350dp</dimen>
+    <dimen name="list_item_min_height">56dp</dimen>
+    <dimen name="main_content_bottom_compensation">88dp</dimen>
+    <dimen name="edit_text_area_height">140dp</dimen>
+
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_s">8dp</dimen>
+    <dimen name="spacing_m">12dp</dimen>
+    <dimen name="spacing_l">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
 </resources>
