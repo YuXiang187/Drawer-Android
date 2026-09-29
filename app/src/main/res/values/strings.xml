@@ -6,7 +6,7 @@
     <string name="settings_float_button">Float button</string>
     <string name="lists">Lists</string>
     <string name="lists_edit">Edit</string>
-    <string name="lists_statisticians">Statistics</string>
+    <string name="lists_statistics">Statistics</string>
     <string name="app_whole_name" translatable="false">YuXiang Drawer</string>
     <string name="app_version" translatable="false">2.2</string>
     <string name="menu_exit">Exit</string>
@@ -19,7 +19,7 @@
     <string name="theme_black">Dark mode</string>
     <string name="cancel">Cancel</string>
     <string name="dialog_number_text">Number of draws: %d</string>
-    <string name="dialog_name_text">Number of lists: %s</string>
+    <string name="dialog_name_text">Names: %s</string>
     <string name="menu_run">Run</string>
     <string name="menu_draw">Draw</string>
     <string name="ok">OK</string>
@@ -55,11 +55,11 @@
     <string name="text_total">Total: %d</string>
     <string name="text_selected">Selected: %d</string>
     <string name="find_hint">Enter a name to find</string>
-    <string name="find_done">Search finished.</string>
+    <string name="find_done">Not found</string>
     <string name="no_comma">Please do not include English commas ","</string>
     <string name="clear_confirm">Clear all content?</string>
     <string name="help_title">Help</string>
-    <string name="help_text">The list syntax is:\n\nName1,Name2,Name3,…</string>
+    <string name="help_text">The list syntax is:\n\nName1,Name2,Name3,…\n\nNote: the separator is the English comma, not the full-width comma!</string>
     <string name="password_empty">Password cannot be empty</string>
     <string name="import_confirm_title">Import confirmation</string>
     <string name="import_confirm_message">Import by appending or overwriting?</string>

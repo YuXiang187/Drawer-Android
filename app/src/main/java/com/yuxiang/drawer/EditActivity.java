@@ -33,8 +33,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -83,12 +86,12 @@ public class EditActivity extends AppCompatActivity {
         importLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
             if (uri != null) {
                 try {
-                    java.io.InputStream inputStream = getContentResolver().openInputStream(uri);
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
                     if (inputStream == null) {
                         Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    java.util.Scanner scanner = new java.util.Scanner(inputStream, "UTF-8").useDelimiter("\\A");
+                    Scanner scanner = new Scanner(inputStream, "UTF-8").useDelimiter("\\A");
                     String content = scanner.hasNext() ? scanner.next() : "";
                     scanner.close();
                     if (content.trim().isEmpty()) {
@@ -122,7 +125,7 @@ public class EditActivity extends AppCompatActivity {
         exportLauncher = registerForActivityResult(new ActivityResultContracts.CreateDocument("text/plain"), uri -> {
             if (uri != null) {
                 try {
-                    java.io.OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
                     if (outputStream == null) {
                         Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                         return;
@@ -207,7 +210,6 @@ public class EditActivity extends AppCompatActivity {
                 String modifiedText = charSequence.toString()
                         .replace("\r", "")
                         .replace("\n", ",")
-                        .replace(" ", "")
                         .replace("\t", "");
                 if (!charSequence.toString().equals(modifiedText)) {
                     editText.setText(modifiedText);
@@ -221,7 +223,7 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        editText.setText(initPoolPreferences.getString("init", ""));
+        editText.setText(initPoolPreferences.getString("init", StringPool.DEFAULT_INIT));
     }
 
     private void refreshList() {
@@ -233,6 +235,7 @@ public class EditActivity extends AppCompatActivity {
         }
         listAdapter.notifyDataSetChanged();
         listView.clearChoices();
+        findIndex = -1;
         totalText.setText(getString(R.string.text_total, list.size()));
         selectedText.setText(getString(R.string.text_selected, 0));
     }
@@ -297,7 +300,7 @@ public class EditActivity extends AppCompatActivity {
                         }
                     }
                     if (found == -1) {
-                        for (int index = 0; index <= findIndex; index++) {
+                        for (int index = 0; index <= findIndex && index < list.size(); index++) {
                             if (list.get(index).toLowerCase().contains(query.toLowerCase())) {
                                 found = index;
                                 break;
@@ -378,9 +381,9 @@ public class EditActivity extends AppCompatActivity {
         textView.setText(message);
         scrollView.addView(textView);
         new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.lists_statisticians)
+                .setTitle(R.string.lists_statistics)
                 .setView(scrollView)
-                .setNegativeButton(R.string.ok, (dialogInterface, i) -> finish())
+                .setPositiveButton(R.string.ok, null)
                 .setOnDismissListener(dialogInterface -> finish())
                 .show();
     }

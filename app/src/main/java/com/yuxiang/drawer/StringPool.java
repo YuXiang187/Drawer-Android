@@ -13,7 +13,7 @@ import java.util.Random;
 
 public class StringPool {
     private static final double STDDEV_SCALING_FACTOR = 3.0;
-    private static final String DEFAULT_INIT = "Item1,Item2,Item3,Item4,Item5";
+    static final String DEFAULT_INIT = "Item1,Item2,Item3,Item4,Item5";
 
     static ArrayList<String> initPool = new ArrayList<>();
     static ArrayList<String> pool = new ArrayList<>();

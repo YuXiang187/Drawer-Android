@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             textView.setText(message);
             scrollView.addView(textView);
             new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.lists_statisticians)
+                    .setTitle(R.string.lists_statistics)
                     .setView(scrollView)
                     .setNegativeButton(R.string.ok, null)
                     .show();

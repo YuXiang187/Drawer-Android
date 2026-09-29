@@ -6,7 +6,7 @@
     <string name="settings_float_button">悬浮按钮</string>
     <string name="lists">列表</string>
     <string name="lists_edit">编辑</string>
-    <string name="lists_statisticians">统计</string>
+    <string name="lists_statistics">统计</string>
     <string name="menu_exit">退出</string>
     <string name="menu_about">关于</string>
     <string name="text_get_permission">已获取权限</string>
@@ -53,7 +53,7 @@
     <string name="text_total">总数：%d</string>
     <string name="text_selected">选中：%d</string>
     <string name="find_hint">输入要查找的名称</string>
-    <string name="find_done">查找完毕</string>
+    <string name="find_done">未找到</string>
     <string name="no_comma">请不要包含英文逗号「,」</string>
     <string name="clear_confirm">是否清空内容？</string>
     <string name="help_title">帮助</string>
