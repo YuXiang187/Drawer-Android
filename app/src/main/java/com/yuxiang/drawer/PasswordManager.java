@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,23 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.Objects;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
 public class PasswordManager {
+    private static final String KEY_HASH = "password_hash";
+    private static final String KEY_SALT = "password_salt";
+    private static final String LEGACY_KEY = "password";
+    private static final String DEFAULT_PASSWORD = "123456";
+    private static final int PBKDF2_ITERATIONS = 100000;
+    private static final int KEY_LENGTH_BITS = 256;
+    private static final int SALT_LENGTH_BYTES = 16;
+
     Context context;
     LinearLayout layout;
     ImageView passwordImage;
@@ -71,15 +86,73 @@ public class PasswordManager {
         });
 
         textInputLayout.addView(editText);
+
+        migrateLegacyPassword();
     }
 
     public boolean isPasswordCurrent(String password) {
-        if (password.equals(passwordPreferences.getString("password", "123456"))) {
-            return true;
+        String storedHash = passwordPreferences.getString(KEY_HASH, null);
+        if (storedHash == null) {
+            // No custom password has ever been set; the built-in default applies.
+            if (password.equals(DEFAULT_PASSWORD)) {
+                return true;
+            }
         } else {
-            Toast.makeText(context, R.string.password_incorrect, Toast.LENGTH_SHORT).show();
-            return false;
+            String storedSalt = passwordPreferences.getString(KEY_SALT, null);
+            if (storedSalt != null) {
+                String candidate = hashPassword(password, Base64.decode(storedSalt, Base64.NO_WRAP));
+                if (candidate != null && constantTimeEquals(candidate, storedHash)) {
+                    return true;
+                }
+            }
         }
+        Toast.makeText(context, R.string.password_incorrect, Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
+    // Derives a PBKDF2 hash of the given password using the supplied salt, or null on failure.
+    private static String hashPassword(String password, byte[] salt) {
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, KEY_LENGTH_BITS);
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            return Base64.encodeToString(factory.generateSecret(spec).getEncoded(), Base64.NO_WRAP);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            spec.clearPassword();
+        }
+    }
+
+    // Hashes and stores the password, replacing any legacy plain-text entry.
+    private void storePassword(String password) {
+        byte[] salt = new byte[SALT_LENGTH_BYTES];
+        new SecureRandom().nextBytes(salt);
+        String hash = hashPassword(password, salt);
+        if (hash == null) {
+            return;
+        }
+        passwordPreferences.edit()
+                .putString(KEY_SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
+                .putString(KEY_HASH, hash)
+                .remove(LEGACY_KEY)
+                .apply();
+    }
+
+    // Migrates a plain-text password saved by an older version into a salted hash.
+    private void migrateLegacyPassword() {
+        if (passwordPreferences.contains(KEY_HASH) || !passwordPreferences.contains(LEGACY_KEY)) {
+            return;
+        }
+        String legacy = passwordPreferences.getString(LEGACY_KEY, null);
+        if (legacy == null || legacy.isEmpty()) {
+            passwordPreferences.edit().remove(LEGACY_KEY).apply();
+            return;
+        }
+        storePassword(legacy);
+    }
+
+    private static boolean constantTimeEquals(String a, String b) {
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
     }
 
     public void enterPassword() {
@@ -90,7 +163,7 @@ public class PasswordManager {
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
                     String password = Objects.requireNonNull(editText.getText()).toString().trim();
                     if (isPasswordCurrent(password)) {
-                        if (password.equals("123456")) {
+                        if (password.equals(DEFAULT_PASSWORD)) {
                             new MaterialAlertDialogBuilder(context)
                                     .setTitle(R.string.dialog_password_warning_title)
                                     .setMessage(R.string.dialog_password_warning_text)
@@ -121,7 +194,7 @@ public class PasswordManager {
                         Toast.makeText(context, R.string.password_empty, Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    passwordPreferences.edit().putString("password", password).apply();
+                    storePassword(password);
                     Toast.makeText(context, R.string.password_changed, Toast.LENGTH_SHORT).show();
                 })
                 .setOnDismissListener(dialogInterface -> editText.setText(""))
@@ -142,7 +215,7 @@ public class PasswordManager {
     private TextView customTitle(int text) {
         TextView title = new TextView(context);
         title.setText(text);
-        title.setGravity(android.view.Gravity.CENTER);
+        title.setGravity(Gravity.CENTER);
         title.setTextSize(24);
         title.setPadding(0, 0, 0, 20);
         return title;
