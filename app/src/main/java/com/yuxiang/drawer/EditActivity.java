@@ -7,6 +7,8 @@ import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -21,6 +23,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.Insets;
@@ -53,6 +56,9 @@ public class EditActivity extends AppCompatActivity {
     SharedPreferences poolPreferences;
 
     int findIndex = -1;
+
+    TextInputLayout findInputLayout;
+    TextInputEditText findInput;
 
     ActivityResultLauncher<String[]> importLauncher;
     ActivityResultLauncher<String> exportLauncher;
@@ -275,20 +281,25 @@ public class EditActivity extends AppCompatActivity {
         int sidePadding = (int) (20 * getResources().getDisplayMetrics().density);
         container.setPadding(sidePadding, 0, sidePadding, 0);
 
-        TextInputLayout inputLayout = new TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle);
-        inputLayout.setHint(getString(R.string.find_hint));
-        TextInputEditText input = new TextInputEditText(inputLayout.getContext());
-        input.setSingleLine(true);
-        input.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-        inputLayout.addView(input);
-        container.addView(inputLayout);
+        if (findInputLayout == null) {
+            findInputLayout = new TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle);
+            findInputLayout.setHint(getString(R.string.find_hint));
+            findInput = new TextInputEditText(findInputLayout.getContext());
+            findInput.setSingleLine(true);
+            findInput.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+            findInputLayout.addView(findInput);
+        }
+        if (findInputLayout.getParent() != null) {
+            ((ViewGroup) findInputLayout.getParent()).removeView(findInputLayout);
+        }
+        container.addView(findInputLayout);
 
-        new MaterialAlertDialogBuilder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.action_find)
                 .setView(container)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
-                    String query = input.getText().toString().trim();
+                    String query = findInput.getText().toString().trim();
                     if (query.isEmpty()) {
                         return;
                     }
@@ -319,6 +330,10 @@ public class EditActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+
+        findInput.requestFocus();
+        findInput.setSelection(findInput.getText().length());
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     private void showClearDialog() {
