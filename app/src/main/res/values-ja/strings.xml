@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="functions">機能</string>
     <string name="settings">設定</string>
     <string name="settings_start_on_boot">起動時に自動実行</string>
     <string name="settings_float_button">浮動ボタン</string>
@@ -18,6 +19,7 @@
     <string name="dialog_number_text">描画数量：%d</string>
     <string name="dialog_name_text">抽選リスト：%s</string>
     <string name="menu_run">実行する</string>
+    <string name="menu_draw">抽選</string>
     <string name="ok">OK</string>
     <string name="dialog_enter_password">パスワード入力</string>
     <string name="confirm">確認</string>

@@ -178,19 +178,26 @@ public class FloatView {
         }
     }
 
-    public void run() {
+    public String draw() {
         String result = stringPool.draw();
+        if (!result.isEmpty()) {
+            stringPool.save();
+        }
+        return result;
+    }
+
+    public void run() {
+        String result = draw();
         if (result.isEmpty()) {
             Toast.makeText(context, R.string.text_is_null, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        stringPool.save();
-
         showFloatText();
         textView.setTextColor(defaultColor);
         textView.setText(result);
 
+        // restart the countdown
         handler.removeCallbacks(countdownRunnable);
         progressValue = 100;
         linearProgressIndicator.setProgressCompat(100, false);

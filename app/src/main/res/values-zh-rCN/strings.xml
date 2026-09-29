@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="functions">功能</string>
     <string name="settings">设置</string>
     <string name="settings_start_on_boot">开机自启</string>
     <string name="settings_float_button">悬浮按钮</string>
@@ -18,6 +19,7 @@
     <string name="dialog_number_text">抽取数量：%d</string>
     <string name="dialog_name_text">抽取名单：%s</string>
     <string name="menu_run">运行</string>
+    <string name="menu_draw">抽取</string>
     <string name="ok">好</string>
     <string name="dialog_enter_password">输入密码</string>
     <string name="confirm">确认</string>

@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     MaterialSwitch bootSwitch;
     MaterialSwitch floatSwitch;
     MaterialSwitch locationSwitch;
+    Button drawButton;
     Button editButton;
     Button statButton;
 
@@ -151,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
+        drawButton = findViewById(R.id.draw_btn);
+        drawButton.setOnClickListener(view -> onDrawClicked());
+
         if (settingsPreferences.getBoolean("float_state", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this) && !FloatView.isButtonViewAdded) {
@@ -174,6 +178,25 @@ public class MainActivity extends AppCompatActivity {
         floatView.hideFloatButton(false);
         floatView.hideFloatText();
         super.onDestroy();
+    }
+
+    private void onDrawClicked() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
+            // Reuse the floating window, exactly like the floating button.
+            floatView.run();
+            return;
+        }
+
+        // Without the overlay permission, display the drawn name in an in-app dialog.
+        String name = floatView.draw();
+        if (name.isEmpty()) {
+            Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
+        } else {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(name)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+        }
     }
 
     @Override
