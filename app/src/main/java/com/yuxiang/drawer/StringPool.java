@@ -44,11 +44,18 @@ public class StringPool {
         int index = pickIndex();
         String value = pool.get(index);
 
-        int first = pool.indexOf(value);
-        pool.remove(first);
+        pool.remove(value);
         pool.add(value);
 
         return value;
+    }
+
+    // used by the rolling animation
+    public String get() {
+        if (pool.isEmpty()) {
+            return "";
+        }
+        return pool.get(random.nextInt(pool.size()));
     }
 
     private int pickIndex() {

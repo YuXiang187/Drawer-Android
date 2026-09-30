@@ -2,6 +2,7 @@ package com.yuxiang.drawer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -24,7 +25,11 @@ public class FloatView {
     int defaultColor;
     boolean isTextViewAdded = false;
     static boolean isButtonViewAdded = false;
+    boolean isRunning = false;
+    int rollingStep = 0;
     private static final long COUNTDOWN_INTERVAL_MS = 12;
+    private static final long ROLLING_INTERVAL_MS = 60;
+    private static final int ROLLING_STEPS = 8;
 
     Context context;
     Handler handler;
@@ -162,7 +167,7 @@ public class FloatView {
     }
 
     public void hideFloatText() {
-        handler.removeCallbacks(countdownRunnable);
+        stopAnimation();
         if (isTextViewAdded) {
             windowManager.removeView(floatWindowView);
             isTextViewAdded = false;
@@ -191,20 +196,69 @@ public class FloatView {
     }
 
     public void run() {
-        String result = draw();
-        if (result.isEmpty()) {
-            Toast.makeText(context, R.string.text_is_null, Toast.LENGTH_SHORT).show();
+        if (isRunning) {
             return;
         }
+        isRunning = true;
+        fab.setEnabled(false);
 
         showFloatText();
-        textView.setTextColor(defaultColor);
-        textView.setText(result);
+        textView.setTextColor(Color.GRAY);
+        progressValue = 100;
+        linearProgressIndicator.setProgressCompat(100, false);
 
-        // restart the countdown
+        rollingStep = 0;
         handler.removeCallbacks(countdownRunnable);
+        handler.post(rollingRunnable);
+    }
+
+    private final Runnable rollingRunnable = new Runnable() {
+        @Override
+        public void run() {
+            String text;
+            if (rollingStep >= ROLLING_STEPS - 1) {
+                // last frame
+                text = draw();
+                if (text.isEmpty()) {
+                    cancelAnimation();
+                    Toast.makeText(context, R.string.text_is_null, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                // rolling frames
+                text = stringPool.get();
+            }
+            textView.setText(text);
+            rollingStep++;
+            if (rollingStep >= ROLLING_STEPS) {
+                finishRolling();
+            } else {
+                handler.postDelayed(this, ROLLING_INTERVAL_MS);
+            }
+        }
+    };
+
+    private void finishRolling() {
+        handler.removeCallbacks(rollingRunnable);
+        textView.setTextColor(defaultColor);
+        stopAnimation();
+
         progressValue = 100;
         linearProgressIndicator.setProgressCompat(100, false);
         handler.postDelayed(countdownRunnable, COUNTDOWN_INTERVAL_MS);
+    }
+
+    private void cancelAnimation() {
+        stopAnimation();
+        hideFloatText();
+    }
+
+    private void stopAnimation() {
+        handler.removeCallbacks(rollingRunnable);
+        handler.removeCallbacks(countdownRunnable);
+        if (isRunning) {
+            isRunning = false;
+            fab.setEnabled(true);
+        }
     }
 }
