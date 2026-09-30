@@ -106,8 +106,7 @@ public class FloatView {
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (MainActivity.isRememberLocation) {
-                            locationPreferences.edit().putInt("locationX", buttonParams.x).apply();
-                            locationPreferences.edit().putInt("locationY", buttonParams.y).apply();
+                            saveLocation();
                         }
                         // Detect if it is a click event (you can determine if it is a click based on the distance moved)
                         if (Math.abs(event.getRawX() - initialTouchX) < 10 && Math.abs(event.getRawY() - initialTouchY) < 10) {
@@ -149,6 +148,13 @@ public class FloatView {
         if (isButtonViewAdded) {
             windowManager.updateViewLayout(floatButtonView, buttonParams);
         }
+    }
+
+    public void saveLocation() {
+        locationPreferences.edit()
+                .putInt("locationX", buttonParams.x)
+                .putInt("locationY", buttonParams.y)
+                .apply();
     }
 
     public void showFloatText() {

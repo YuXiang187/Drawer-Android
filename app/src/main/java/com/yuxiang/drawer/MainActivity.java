@@ -126,6 +126,9 @@ public class MainActivity extends AppCompatActivity {
         locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             isRememberLocation = b;
             settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
+            if (b) {
+                floatView.saveLocation();
+            }
         });
 
         resetLocationButton = findViewById(R.id.reset_location_button);
