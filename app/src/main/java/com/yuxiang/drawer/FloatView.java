@@ -143,10 +143,14 @@ public class FloatView {
     }
 
     public void resetFloatButtonLocation() {
-        locationPreferences.edit().remove("locationX").remove("locationY").apply();
-        resetLocation();
         if (isButtonViewAdded) {
-            windowManager.updateViewLayout(floatButtonView, buttonParams);
+            locationPreferences.edit().remove("locationX").remove("locationY").apply();
+            resetLocation();
+            if (floatButtonView.getWindowToken() != null) {
+                windowManager.updateViewLayout(floatButtonView, buttonParams);
+            } else {
+                Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
