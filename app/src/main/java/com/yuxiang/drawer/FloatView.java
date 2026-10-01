@@ -1,5 +1,6 @@
 package com.yuxiang.drawer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -29,6 +30,7 @@ public class FloatView {
     private static final long ROLLING_INTERVAL_MS = 60;
     private static final int ROLLING_STEPS = 8;
 
+    @SuppressLint("StaticFieldLeak")
     private static FloatView instance;
 
     private final Context appContext;
@@ -36,6 +38,7 @@ public class FloatView {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final StringPool stringPool;
     private final SharedPreferences locationPreferences;
+    private final SharedPreferences settingsPreferences;
     private final WindowManager.LayoutParams buttonParams;
     private final WindowManager.LayoutParams textParams;
 
@@ -85,6 +88,7 @@ public class FloatView {
         stringPool = new StringPool(appContext);
         windowManager = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
         locationPreferences = appContext.getSharedPreferences("location", Context.MODE_PRIVATE);
+        settingsPreferences = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
 
         int overlayType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
@@ -137,7 +141,7 @@ public class FloatView {
                         windowManager.updateViewLayout(floatButtonView, buttonParams);
                         return true;
                     case MotionEvent.ACTION_UP:
-                        if (MainActivity.isRememberLocation) {
+                        if (settingsPreferences.getBoolean("is_remember_location", false)) {
                             saveLocation();
                         }
                         // Detect if it is a click event (you can determine if it is a click based on the distance moved)

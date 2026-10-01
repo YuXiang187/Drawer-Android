@@ -4,6 +4,7 @@
     <string name="settings">設定</string>
     <string name="settings_start_on_boot">起動時に自動実行</string>
     <string name="settings_float_button">フローティングボタン</string>
+    <string name="settings_background">バックグラウンドで実行</string>
     <string name="lists">リスト</string>
     <string name="lists_edit">編集</string>
     <string name="lists_statistics">統計</string>
@@ -11,6 +12,7 @@
     <string name="menu_about">このアプリについて</string>
     <string name="text_get_permission">許可が付与されました</string>
     <string name="text_no_permission">許可されていません</string>
+    <string name="text_no_notification_permission">通知の権限が拒否されました。バックグラウンドでは引き続き動作しますが、通知は表示されません。</string>
     <string name="menu_theme">テーマ</string>
     <string name="theme_system">システムに従う</string>
     <string name="theme_white">ホワイトモード</string>
@@ -64,4 +66,9 @@
     <string name="import_confirm_message">追加でインポートしますか、それとも上書きでインポートしますか？</string>
     <string name="import_append">追加</string>
     <string name="import_overwrite">上書き</string>
+    <string name="notification_channel_name">バックグラウンド実行</string>
+    <string name="notification_channel_description">フローティングボタンをバックグラウンドで保持している間に表示されます</string>
+    <string name="notification_title">フローティングボタンが有効です</string>
+    <string name="notification_text">タップしてDrawerを開く</string>
+    <string name="notification_action_hide">オフにする</string>
 </resources>

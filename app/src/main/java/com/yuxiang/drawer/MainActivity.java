@@ -1,7 +1,9 @@
 package com.yuxiang.drawer;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,20 +37,29 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.appbar.MaterialToolbar;
 
 public class MainActivity extends AppCompatActivity {
-    static boolean isRememberLocation;
-
     SharedPreferences settingsPreferences;
     PasswordManager passwordManager;
     ActivityResultLauncher<Intent> overlayPermissionLauncher;
+    ActivityResultLauncher<String> notificationPermissionLauncher;
 
     FloatView floatView;
     MaterialSwitch bootSwitch;
     MaterialSwitch floatSwitch;
+    MaterialSwitch backgroundSwitch;
     MaterialSwitch locationSwitch;
     Button drawButton;
     Button editButton;
     Button statButton;
     ImageButton resetLocationButton;
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
+            (preferences, key) -> {
+                if ("float_state".equals(key)) {
+                    floatSwitch.setChecked(preferences.getBoolean(key, false));
+                } else if ("background_state".equals(key)) {
+                    backgroundSwitch.setChecked(preferences.getBoolean(key, false));
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +94,22 @@ public class MainActivity extends AppCompatActivity {
                         if (Settings.canDrawOverlays(this)) {
                             Toast.makeText(this, getString(R.string.text_get_permission), Toast.LENGTH_SHORT).show();
                             floatView.showFloatButton();
+                            FloatService.sync(this);
                         } else {
                             Toast.makeText(this, getString(R.string.text_no_permission), Toast.LENGTH_SHORT).show();
                             floatSwitch.setChecked(false);
                             settingsPreferences.edit().putBoolean("float_state", false).apply();
                         }
+                    }
+                }
+        );
+
+        // Android 13 (API 33) and newer: the ongoing notification of the background service is
+        // only visible with this runtime permission. The service itself runs either way.
+        notificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (!granted) {
+                        Toast.makeText(this, getString(R.string.text_no_notification_permission), Toast.LENGTH_LONG).show();
                     }
                 }
         );
@@ -102,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         floatSwitch = findViewById(R.id.float_switch);
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         floatSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            settingsPreferences.edit().putBoolean("float_state", b).apply();
             if (b) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (!Settings.canDrawOverlays(this)) {
@@ -118,19 +142,29 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 floatView.hideFloatButton();
             }
-            settingsPreferences.edit().putBoolean("float_state", b).apply();
+            FloatService.sync(this);
         });
 
-        isRememberLocation = settingsPreferences.getBoolean("is_remember_location", false);
+        backgroundSwitch = findViewById(R.id.background_switch);
+        backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+        backgroundSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            settingsPreferences.edit().putBoolean("background_state", b).apply();
+            if (b) {
+                requestNotificationPermission();
+            }
+            FloatService.sync(this);
+        });
+
         locationSwitch = findViewById(R.id.location_switch);
-        locationSwitch.setChecked(isRememberLocation);
+        locationSwitch.setChecked(settingsPreferences.getBoolean("is_remember_location", false));
         locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            isRememberLocation = b;
             settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
             if (b) {
                 floatView.saveLocation();
             }
         });
+
+        settingsPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 
         resetLocationButton = findViewById(R.id.reset_location_button);
         TooltipCompat.setTooltipText(resetLocationButton, getString(R.string.action_reset_location));
@@ -175,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        FloatService.sync(this);
+
         Intent isBack = getIntent();
         if (isBack.getBooleanExtra("is_back", false)) {
             moveTaskToBack(true);
@@ -182,12 +218,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
+        backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+    }
+
+    @Override
     protected void onDestroy() {
-        if (isFinishing()) {
+        settingsPreferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+        if (isFinishing() && !FloatService.shouldRun(this)) {
             floatView.hideFloatButton();
             floatView.hideFloatText();
         }
         super.onDestroy();
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
     private void onDrawClicked() {
@@ -238,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menu_exit) {
             floatView.hideFloatButton();
             floatView.hideFloatText();
+            FloatService.stopNow(this);
             finishAffinity();
         } else if (id == R.id.menu_about) {
             LayoutInflater inflater = getLayoutInflater();

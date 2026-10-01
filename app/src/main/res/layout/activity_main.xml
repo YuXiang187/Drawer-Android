@@ -75,6 +75,14 @@
 
             <View style="@style/Widget.Drawer.ListDivider" />
 
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/background_switch"
+                style="@style/Widget.Drawer.SettingSwitch"
+                android:checked="false"
+                android:text="@string/settings_background" />
+
+            <View style="@style/Widget.Drawer.ListDivider" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

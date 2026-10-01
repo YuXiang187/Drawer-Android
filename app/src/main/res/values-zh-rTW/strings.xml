@@ -4,6 +4,7 @@
     <string name="settings">設定</string>
     <string name="settings_start_on_boot">開機自啟</string>
     <string name="settings_float_button">懸浮按鈕</string>
+    <string name="settings_background">背景執行</string>
     <string name="lists">清單</string>
     <string name="lists_edit">編輯</string>
     <string name="lists_statistics">統計</string>
@@ -11,6 +12,7 @@
     <string name="menu_about">關於</string>
     <string name="text_get_permission">已取得權限</string>
     <string name="text_no_permission">未取得權限</string>
+    <string name="text_no_notification_permission">通知權限被拒絕：應用程式仍會在背景執行，但不會顯示通知。</string>
     <string name="menu_theme">主題</string>
     <string name="theme_system">依系統設定</string>
     <string name="theme_white">淺色模式</string>
@@ -64,4 +66,9 @@
     <string name="import_confirm_message">以追加方式匯入還是以覆寫方式匯入？</string>
     <string name="import_append">追加</string>
     <string name="import_overwrite">覆寫</string>
+    <string name="notification_channel_name">背景執行</string>
+    <string name="notification_channel_description">在背景保持懸浮按鈕時顯示</string>
+    <string name="notification_title">懸浮按鈕已開啟</string>
+    <string name="notification_text">點按返回應用程式</string>
+    <string name="notification_action_hide">關閉懸浮按鈕</string>
 </resources>

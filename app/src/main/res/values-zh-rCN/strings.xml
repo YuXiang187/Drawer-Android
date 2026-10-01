@@ -4,6 +4,7 @@
     <string name="settings">设置</string>
     <string name="settings_start_on_boot">开机自启</string>
     <string name="settings_float_button">悬浮按钮</string>
+    <string name="settings_background">后台运行</string>
     <string name="lists">列表</string>
     <string name="lists_edit">编辑</string>
     <string name="lists_statistics">统计</string>
@@ -11,6 +12,7 @@
     <string name="menu_about">关于</string>
     <string name="text_get_permission">已获取权限</string>
     <string name="text_no_permission">未获取权限</string>
+    <string name="text_no_notification_permission">通知权限被拒绝：应用仍会在后台运行，但不会显示通知。</string>
     <string name="menu_theme">主题</string>
     <string name="theme_system">跟随系统</string>
     <string name="theme_white">白色模式</string>
@@ -64,4 +66,9 @@
     <string name="import_confirm_message">以追加方式导入还是以覆盖方式导入？</string>
     <string name="import_append">追加</string>
     <string name="import_overwrite">覆盖</string>
+    <string name="notification_channel_name">后台运行</string>
+    <string name="notification_channel_description">在后台保持悬浮按钮时显示</string>
+    <string name="notification_title">悬浮按钮已开启</string>
+    <string name="notification_text">点按返回应用</string>
+    <string name="notification_action_hide">关闭悬浮按钮</string>
 </resources>
