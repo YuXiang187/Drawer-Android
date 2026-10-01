@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     PasswordManager passwordManager;
     ActivityResultLauncher<Intent> overlayPermissionLauncher;
     ActivityResultLauncher<String> notificationPermissionLauncher;
+    ActivityResultLauncher<Intent> accessibilitySettingsLauncher;
 
     FloatView floatView;
     MaterialSwitch bootSwitch;
@@ -111,6 +112,26 @@ public class MainActivity extends AppCompatActivity {
                     if (!granted) {
                         Toast.makeText(this, getString(R.string.text_no_notification_permission), Toast.LENGTH_LONG).show();
                     }
+                    // The button is kept alive by the foreground service at this point; the user is
+                    // asked about the accessibility alternative only afterward, so that both
+                    // dialogs do not overlap.
+                    askForAccessibilityService();
+                }
+        );
+
+        // The user comes back from the system accessibility settings. When the service is enabled
+        // the accessibility service takes the floating button over, otherwise the foreground
+        // service stays in charge, which is the fallback the user chose by declining.
+        accessibilitySettingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (FloatAccessibilityService.isEnabled(this) || FloatAccessibilityService.isConnected()) {
+                        Toast.makeText(this, getString(R.string.text_accessibility_permission), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, getString(R.string.text_no_accessibility_permission), Toast.LENGTH_LONG).show();
+                    }
+                    // The accessibility service itself hands the button over when it connects, and
+                    // the foreground service takes over again when it is not enabled.
+                    FloatService.sync(this);
                 }
         );
 
@@ -150,9 +171,16 @@ public class MainActivity extends AppCompatActivity {
         backgroundSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             settingsPreferences.edit().putBoolean("background_state", b).apply();
             if (b) {
-                requestNotificationPermission();
+                // Keep the button alive with the foreground service first; the accessibility
+                // alternative is offered right after that, and when the user agrees it takes the
+                // floating button over (see the notification permission result above).
+                FloatService.sync(this);
+                if (!requestNotificationPermission()) {
+                    askForAccessibilityService();
+                }
+            } else {
+                FloatService.sync(this);
             }
-            FloatService.sync(this);
         });
 
         locationSwitch = findViewById(R.id.location_switch);
@@ -222,24 +250,58 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+        // The accessibility service may have been turned on or off in the system settings while the
+        // app was in the background (or the foreground service could not be restarted from there):
+        // pick the way of keeping the button alive that matches the current state.
+        FloatService.sync(this);
     }
 
     @Override
     protected void onDestroy() {
         settingsPreferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
-        if (isFinishing() && !FloatService.shouldRun(this)) {
+        if (isFinishing() && !FloatService.shouldKeepAlive(this)) {
             floatView.hideFloatButton();
             floatView.hideFloatText();
         }
         super.onDestroy();
     }
 
-    private void requestNotificationPermission() {
+    // Launches the system notification permission dialog when it is needed and reports whether it
+    // did, so that the caller knows whether a dialog is going to be shown.
+    private boolean requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            return true;
         }
+        return false;
+    }
+
+    // Offers to show the floating button with the accessibility permission instead of the
+    // foreground service. Declining keeps the foreground service, which is already running here.
+    private void askForAccessibilityService() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        if (!settingsPreferences.getBoolean("float_state", false)
+                || !settingsPreferences.getBoolean("background_state", false)) {
+            return;
+        }
+        if (FloatAccessibilityService.isEnabled(this) || FloatAccessibilityService.isConnected()) {
+            // Already enabled: nothing to ask, the accessibility service hosts the button already.
+            FloatService.sync(this);
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_accessibility_title)
+                .setMessage(R.string.dialog_accessibility_text)
+                .setPositiveButton(R.string.dialog_accessibility_open, (dialogInterface, i) -> {
+                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                    accessibilitySettingsLauncher.launch(intent);
+                })
+                .setNegativeButton(R.string.dialog_accessibility_skip, null)
+                .show();
     }
 
     private void onDrawClicked() {

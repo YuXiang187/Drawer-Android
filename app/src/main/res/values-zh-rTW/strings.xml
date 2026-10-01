@@ -71,4 +71,11 @@
     <string name="notification_title">懸浮按鈕已開啟</string>
     <string name="notification_text">點按返回應用程式</string>
     <string name="notification_action_hide">關閉懸浮按鈕</string>
+    <string name="accessibility_service_description">以背景方式維持懸浮按鈕顯示，並讓懸浮按鈕可以顯示在設定頁、通知欄等系統介面之上。本應用程式僅使用此權限顯示懸浮按鈕，不會讀取螢幕內容。</string>
+    <string name="dialog_accessibility_title">無障礙服務顯示</string>
+    <string name="dialog_accessibility_text">開啟無障礙服務後，懸浮按鈕將可以顯示在系統受限介面。\n\n本應用程式只使用此權限維持懸浮按鈕顯示，不會讀取螢幕內容，也不會執行點擊或手勢操作。\n\n若暫不開啟，將僅使用前景服務顯示。</string>
+    <string name="dialog_accessibility_open">去開啟</string>
+    <string name="dialog_accessibility_skip">暫不開啟</string>
+    <string name="text_accessibility_permission">已開啟無障礙服務</string>
+    <string name="text_no_accessibility_permission">未開啟無障礙服務</string>
 </resources>

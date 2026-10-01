@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
@@ -26,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class FloatView {
+    private static final String TAG = "FloatView";
     private static final long COUNTDOWN_INTERVAL_MS = 12;
     private static final long ROLLING_INTERVAL_MS = 60;
     private static final int ROLLING_STEPS = 8;
@@ -34,13 +36,16 @@ public class FloatView {
     private static FloatView instance;
 
     private final Context appContext;
-    private final WindowManager windowManager;
+    private final WindowManager appWindowManager;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final StringPool stringPool;
     private final SharedPreferences locationPreferences;
     private final SharedPreferences settingsPreferences;
     private final WindowManager.LayoutParams buttonParams;
     private final WindowManager.LayoutParams textParams;
+
+    private WindowManager windowManager;
+    private WindowManager accessibilityWindowManager;
 
     private View floatButtonView;
     private View floatWindowView;
@@ -83,15 +88,22 @@ public class FloatView {
         return instance;
     }
 
+    /**
+     * Returns the controller of this process without creating one, or null when there is none yet.
+     * Used by the accessibility service, which must not inflate the overlay just to release it.
+     */
+    public static synchronized FloatView peekInstance() {
+        return instance;
+    }
+
     private FloatView(Context appContext, int nightMode) {
         this.appContext = appContext;
         stringPool = new StringPool(appContext);
-        windowManager = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
+        windowManager = appWindowManager = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
         locationPreferences = appContext.getSharedPreferences("location", Context.MODE_PRIVATE);
         settingsPreferences = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
 
-        int overlayType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
+        int overlayType = windowType();
 
         buttonParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -111,6 +123,100 @@ public class FloatView {
         textParams.gravity = Gravity.CENTER;
 
         inflateWindows(nightMode);
+    }
+
+    /**
+     * Shows both windows on the accessibility layer, which the given service hosts.
+     *
+     * <p>The manager has to be the one returned by
+     * {@code AccessibilityService.getSystemService(WINDOW_SERVICE)}: only that instance carries the
+     * accessibility overlay window token. Without the token the platform refuses an accessibility
+     * overlay window, and a regular overlay window is hidden over system UI such as the settings or
+     * the notification shade.
+     *
+     * @param accessibilityWindowManager the window manager of the connected accessibility service.
+     */
+    public void useAccessibilityOverlay(WindowManager accessibilityWindowManager) {
+        if (this.accessibilityWindowManager == accessibilityWindowManager) {
+            return;
+        }
+        // Both windows are bound to the layer they were added with, so they have to be re-created
+        // when the layer changes. Remove them first, while they are still addressed on that layer.
+        boolean textShown = isFloatTextShown();
+        boolean buttonShown = isFloatButtonShown();
+        if (textShown) {
+            removeWindow(floatWindowView);
+        }
+        if (buttonShown) {
+            removeWindow(floatButtonView);
+        }
+
+        this.accessibilityWindowManager = accessibilityWindowManager;
+        windowManager = accessibilityWindowManager != null ? accessibilityWindowManager : appWindowManager;
+
+        // Re-creating a window can be refused when the layer it needs is not permitted, for example
+        // when the "display over other apps" permission was revoked while the accessibility service
+        // hosted the button. The window then simply stays hidden, like it does whenever that
+        // permission is missing.
+        if (buttonShown) {
+            try {
+                addButtonWindow();
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Cannot move the floating button to the other overlay layer", e);
+            }
+        }
+        if (textShown) {
+            try {
+                showFloatText();
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Cannot move the floating window to the other overlay layer", e);
+            }
+        }
+    }
+
+    /**
+     * Shows both windows as regular overlays again. This is the layer the app has always used, and
+     * it needs the "display over other apps" permission.
+     */
+    public void useRegularOverlay() {
+        useAccessibilityOverlay(null);
+    }
+
+    // The window type of both overlay windows, depending on the permission that shows them.
+    private int windowType() {
+        if (accessibilityWindowManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            return WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
+        }
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                : WindowManager.LayoutParams.TYPE_PHONE;
+    }
+
+    // Adds one of the overlay windows, falling back to the regular overlay layer when the platform
+    // refuses the accessibility layer, for example when the accessibility service was turned off in
+    // the system settings between the last check and this call.
+    private void addWindow(View view, WindowManager.LayoutParams params) {
+        try {
+            windowManager.addView(view, params);
+        } catch (RuntimeException e) {
+            if (accessibilityWindowManager == null) {
+                throw e;
+            }
+            Log.w(TAG, "Cannot show the window on the accessibility layer", e);
+            accessibilityWindowManager = null;
+            windowManager = appWindowManager;
+            params.type = windowType();
+            params.token = null;
+            windowManager.addView(view, params);
+        }
+    }
+
+    private void removeWindow(View view) {
+        try {
+            windowManager.removeView(view);
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Cannot remove the overlay window", e);
+        }
     }
 
     private void inflateWindows(int nightMode) {
@@ -215,7 +321,10 @@ public class FloatView {
     }
 
     private void addButtonWindow() {
-        windowManager.addView(floatButtonView, buttonParams);
+        buttonParams.type = windowType();
+        // A token of another layer must never be carried over into a new window.
+        buttonParams.token = null;
+        addWindow(floatButtonView, buttonParams);
     }
 
     private void removeButtonWindow() {
@@ -241,7 +350,9 @@ public class FloatView {
         if (isFloatTextShown()) {
             return;
         }
-        windowManager.addView(floatWindowView, textParams);
+        textParams.type = windowType();
+        textParams.token = null;
+        addWindow(floatWindowView, textParams);
     }
 
     public void showFloatButton() {

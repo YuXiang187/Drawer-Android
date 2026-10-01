@@ -71,4 +71,11 @@
     <string name="notification_title">悬浮按钮已开启</string>
     <string name="notification_text">点按返回应用</string>
     <string name="notification_action_hide">关闭悬浮按钮</string>
+    <string name="accessibility_service_description">以后台方式保持悬浮按钮显示，并让悬浮按钮可以显示在设置页、通知栏等系统界面之上。本应用仅使用该权限显示悬浮按钮，不会读取屏幕内容。</string>
+    <string name="dialog_accessibility_title">无障碍服务显示</string>
+    <string name="dialog_accessibility_text">开启无障碍服务后，悬浮按钮将可以显示在系统受限界面。\n\n本应用只使用该权限保持悬浮按钮显示，不会读取屏幕内容，也不会执行点击或手势操作。\n\n若暂不开启，将仅使用前台服务显示。</string>
+    <string name="dialog_accessibility_open">去开启</string>
+    <string name="dialog_accessibility_skip">暂不开启</string>
+    <string name="text_accessibility_permission">已开启无障碍服务</string>
+    <string name="text_no_accessibility_permission">未开启无障碍服务</string>
 </resources>

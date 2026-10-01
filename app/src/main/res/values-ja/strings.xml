@@ -71,4 +71,11 @@
     <string name="notification_title">フローティングボタンが有効です</string>
     <string name="notification_text">タップしてDrawerを開く</string>
     <string name="notification_action_hide">オフにする</string>
+    <string name="accessibility_service_description">バックグラウンドでフローティングボタンを表示し続け、設定画面や通知シェードなどのシステム UI の上にも表示できるようにします。本アプリはこの権限をフローティングボタンの表示にのみ使用し、画面の内容は読み取りません。</string>
+    <string name="dialog_accessibility_title">ユーザー補助サービスで表示</string>
+    <string name="dialog_accessibility_text">ユーザー補助サービスを有効にすると、フローティングボタンをシステムの制限された画面にも表示できるようになります。\n\n本アプリはこの権限をフローティングボタンの表示維持にのみ使用し、画面の内容を読み取ったり、クリックやジェスチャーを実行したりすることはありません。\n\n有効にしない場合は、フォアグラウンドサービスでのみ表示します。</string>
+    <string name="dialog_accessibility_open">有効にする</string>
+    <string name="dialog_accessibility_skip">今はしない</string>
+    <string name="text_accessibility_permission">ユーザー補助サービスを有効にしました</string>
+    <string name="text_no_accessibility_permission">ユーザー補助サービスは無効です</string>
 </resources>

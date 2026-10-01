@@ -73,4 +73,11 @@
     <string name="notification_title">Floating button is on</string>
     <string name="notification_text">Tap to open Drawer</string>
     <string name="notification_action_hide">Turn off</string>
+    <string name="accessibility_service_description">Keeps the floating button on screen in the background and lets it appear over system UI such as the settings or the notification shade. Drawer uses this permission only to show the floating button and never reads screen content.</string>
+    <string name="dialog_accessibility_title">Accessibility service display</string>
+    <string name="dialog_accessibility_text">With the accessibility service turned on, the floating button can also be shown on system-restricted screens.\n\nDrawer uses this permission only to keep the floating button visible. It never reads screen content, and it never performs clicks or gestures.\n\nIf you do not turn it on, the button is shown with the foreground service only.</string>
+    <string name="dialog_accessibility_open">Turn on</string>
+    <string name="dialog_accessibility_skip">Not now</string>
+    <string name="text_accessibility_permission">Accessibility service turned on</string>
+    <string name="text_no_accessibility_permission">Accessibility service not turned on</string>
 </resources>

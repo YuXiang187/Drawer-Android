@@ -23,6 +23,12 @@ import androidx.core.app.ServiceCompat;
  * foreground. It is optional: the service only runs when the user enabled both "Float button" and
  * "Run in background".
  *
+ * <p>The user can pick a second way of keeping the button alive: when the accessibility service
+ * ({@link FloatAccessibilityService}) is enabled, it is bound by the system and hosts the button on
+ * the accessibility layer, so this foreground service - and its ongoing notification - is not
+ * needed and stays stopped. As soon as the accessibility service is gone, this service takes over
+ * again.
+ *
  * <p>Compatibility notes for minSdk 21 / targetSdk 35:
  * <ul>
  *     <li>API 26+: a service started from the background must be started with
@@ -59,12 +65,20 @@ public class FloatService extends Service {
         }
     }
 
-    // True while the service is supposed to keep the process alive
-    public static boolean shouldRun(Context context) {
+    // True while the floating button is supposed to stay alive while the app is not in the
+    // foreground, no matter which of the two ways keeps it alive.
+    public static boolean shouldKeepAlive(Context context) {
         SharedPreferences preferences = context.getSharedPreferences("settings", MODE_PRIVATE);
         return preferences.getBoolean("float_state", false)
                 && preferences.getBoolean("background_state", false)
                 && canDrawOverlays(context);
+    }
+
+    // True while this foreground service is the one that has to keep the process alive. While the
+    // accessibility service is connected it hosts the floating button itself, so no notification
+    // has to be shown.
+    public static boolean shouldRun(Context context) {
+        return shouldKeepAlive(context) && !FloatAccessibilityService.isConnected();
     }
 
     // Stops the service whatever the settings say (used by the "Exit" menu entry).
@@ -120,7 +134,7 @@ public class FloatService extends Service {
         }
 
         if (!shouldRun(this)) {
-            // Nothing to keep alive (settings changed or the overlay permission is gone)
+            // Nothing to keep alive
             stopSelf();
             return START_NOT_STICKY;
         }
