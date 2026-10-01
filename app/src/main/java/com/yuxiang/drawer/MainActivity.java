@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         );
 
         passwordManager = new PasswordManager(this);
-        floatView = new FloatView(this);
+        // the overlay windows are not owned by this Activity
+        floatView = FloatView.getInstance(this);
 
         bootSwitch = findViewById(R.id.start_on_boot_switch);
         bootSwitch.setChecked(settingsPreferences.getBoolean("boot_state", false));
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     floatView.showFloatButton();
                 }
             } else {
-                floatView.hideFloatButton(true);
+                floatView.hideFloatButton();
             }
             settingsPreferences.edit().putBoolean("float_state", b).apply();
         });
@@ -169,14 +170,8 @@ public class MainActivity extends AppCompatActivity {
         drawButton.setOnClickListener(view -> onDrawClicked());
 
         if (settingsPreferences.getBoolean("float_state", false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (Settings.canDrawOverlays(this) && !FloatView.isButtonViewAdded) {
-                    floatView.showFloatButton();
-                }
-            } else {
-                if (!FloatView.isButtonViewAdded) {
-                    floatView.showFloatButton();
-                }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
+                floatView.showFloatButton();
             }
         }
 
@@ -188,8 +183,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        floatView.hideFloatButton(false);
-        floatView.hideFloatText();
+        if (isFinishing()) {
+            floatView.hideFloatButton();
+            floatView.hideFloatText();
+        }
         super.onDestroy();
     }
 
@@ -239,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menu_close) {
             moveTaskToBack(true);
         } else if (id == R.id.menu_exit) {
-            floatView.hideFloatButton(false);
+            floatView.hideFloatButton();
             floatView.hideFloatText();
             finishAffinity();
         } else if (id == R.id.menu_about) {

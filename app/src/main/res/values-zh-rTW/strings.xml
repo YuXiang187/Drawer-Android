@@ -36,7 +36,6 @@
     <string name="about_message_2">“編輯”功能的初始密碼為123456。</string>
     <string name="about_message_3">拖動懸浮按鈕上方的空白區域可拖動懸浮按鈕。</string>
     <string name="text_is_null">內容不能為空</string>
-    <string name="text_restart_app">重啟應用後生效</string>
     <string name="lists_edit_tip">使用英文逗號（,）分割</string>
     <string name="dialog_password_warning_title">請更改密碼</string>
     <string name="dialog_password_warning_text">您目前正在使用初始密碼。為確保名單內容不被惡意竄改，請及時在編輯頁面下方的工具列中點擊「密碼」按鈕更改密碼。</string>

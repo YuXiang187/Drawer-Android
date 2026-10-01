@@ -38,7 +38,6 @@
     <string name="about_message_2">The initial password for the \"Edit\" function is 123456.</string>
     <string name="about_message_3">Drag the blank area above the floating button to move the floating button.</string>
     <string name="text_is_null">Content cannot be empty</string>
-    <string name="text_restart_app">Restart the app to take effect</string>
     <string name="lists_edit_tip">Separated by commas (,)</string>
     <string name="dialog_password_warning_title">Please change your password</string>
     <string name="dialog_password_warning_text">You are currently using the initial password. To prevent the list contents from being maliciously tampered with, please change the password by clicking the “Password” button in the toolbar at the bottom of the editing page as soon as possible.</string>

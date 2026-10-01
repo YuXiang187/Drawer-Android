@@ -2,49 +2,54 @@ package com.yuxiang.drawer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class FloatView {
-    int defaultColor;
-    boolean isTextViewAdded = false;
-    static boolean isButtonViewAdded = false;
-    boolean isRunning = false;
-    int rollingStep = 0;
     private static final long COUNTDOWN_INTERVAL_MS = 12;
     private static final long ROLLING_INTERVAL_MS = 60;
     private static final int ROLLING_STEPS = 8;
 
-    Context context;
-    Handler handler;
-    StringPool stringPool;
-    SharedPreferences locationPreferences;
+    private static FloatView instance;
 
+    private final Context appContext;
     private final WindowManager windowManager;
-    private final View floatButtonView;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final StringPool stringPool;
+    private final SharedPreferences locationPreferences;
     private final WindowManager.LayoutParams buttonParams;
-    private final View floatWindowView;
     private final WindowManager.LayoutParams textParams;
-    TextView textView;
-    LinearProgressIndicator linearProgressIndicator;
-    FloatingActionButton fab;
-    int progressValue = 100;
+
+    private View floatButtonView;
+    private View floatWindowView;
+    private TextView textView;
+    private LinearProgressIndicator linearProgressIndicator;
+    private FloatingActionButton fab;
+    private int inflatedNightMode = -1;
+
+    private int defaultColor;
+    private boolean isRunning = false;
+    private int rollingStep = 0;
+    private int progressValue = 100;
 
     private final Runnable countdownRunnable = new Runnable() {
         @Override
@@ -59,28 +64,55 @@ public class FloatView {
         }
     };
 
-    public FloatView(Context context) {
-        this.context = context;
-        stringPool = new StringPool(context);
-        handler = new Handler(Looper.getMainLooper());
-        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        locationPreferences = context.getSharedPreferences("location", Context.MODE_PRIVATE);
+    /**
+     * Returns the one and only overlay controller of this process.
+     *
+     * @param context any context; only its configuration (light/dark) is taken from it, never the
+     *                context itself, so no Activity can be leaked by the long living windows.
+     */
+    public static synchronized FloatView getInstance(Context context) {
+        int nightMode = nightModeOf(context);
+        if (instance == null) {
+            instance = new FloatView(context.getApplicationContext(), nightMode);
+        } else {
+            instance.applyNightMode(nightMode);
+        }
+        return instance;
+    }
 
-        // Init button layout
-        LayoutInflater buttonInflater = LayoutInflater.from(context);
-        floatButtonView = buttonInflater.inflate(R.layout.float_button, new FrameLayout(context), false);
+    private FloatView(Context appContext, int nightMode) {
+        this.appContext = appContext;
+        stringPool = new StringPool(appContext);
+        windowManager = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
+        locationPreferences = appContext.getSharedPreferences("location", Context.MODE_PRIVATE);
+
+        int overlayType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
 
         buttonParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
+                overlayType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.RGBA_8888);
-
         buttonParams.gravity = Gravity.TOP | Gravity.START;
         resetLocation();
 
+        textParams = new WindowManager.LayoutParams(
+                appContext.getResources().getDimensionPixelSize(R.dimen.float_window_width),
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                overlayType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.RGBA_8888);
+        textParams.gravity = Gravity.CENTER;
+
+        inflateWindows(nightMode);
+    }
+
+    private void inflateWindows(int nightMode) {
+        LayoutInflater inflater = LayoutInflater.from(createOverlayContext(nightMode));
+
+        floatButtonView = inflater.inflate(R.layout.float_button, null);
         fab = floatButtonView.findViewById(R.id.float_button);
         fab.setOnClickListener(v -> run());
 
@@ -118,20 +150,47 @@ public class FloatView {
             }
         });
 
-        // Init text layout
-        LayoutInflater windowInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        floatWindowView = windowInflater.inflate(R.layout.float_window, new FrameLayout(context), false);
+        floatWindowView = inflater.inflate(R.layout.float_window, null);
         textView = floatWindowView.findViewById(R.id.text);
         linearProgressIndicator = floatWindowView.findViewById(R.id.progress);
         defaultColor = textView.getCurrentTextColor();
 
-        textParams = new WindowManager.LayoutParams(
-                context.getResources().getDimensionPixelSize(R.dimen.float_window_width),
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.RGBA_8888);
-        textParams.gravity = Gravity.CENTER;
+        inflatedNightMode = nightMode;
+    }
+
+    // The windows are inflated from the application context, with the theme the app shows.
+    private Context createOverlayContext(int nightMode) {
+        Configuration configuration = new Configuration(appContext.getResources().getConfiguration());
+        configuration.uiMode = (configuration.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | nightMode;
+        return new ContextThemeWrapper(
+                appContext.createConfigurationContext(configuration), R.style.Theme_Drawer);
+    }
+
+    private static int nightModeOf(Context context) {
+        switch (AppCompatDelegate.getDefaultNightMode()) {
+            case AppCompatDelegate.MODE_NIGHT_YES:
+                return Configuration.UI_MODE_NIGHT_YES;
+            case AppCompatDelegate.MODE_NIGHT_NO:
+                return Configuration.UI_MODE_NIGHT_NO;
+            default:
+                return context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        }
+    }
+
+    // Rebuilds both windows when the in app theme (or the system theme) changed.
+    private void applyNightMode(int nightMode) {
+        if (nightMode == inflatedNightMode) {
+            return;
+        }
+        boolean buttonShown = isFloatButtonShown();
+        hideFloatText();
+        if (buttonShown) {
+            removeButtonWindow();
+        }
+        inflateWindows(nightMode);
+        if (buttonShown) {
+            addButtonWindow();
+        }
     }
 
     private void resetLocation() {
@@ -142,15 +201,28 @@ public class FloatView {
         buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
     }
 
+    // True while the floating button window is registered with the window manager.
+    public boolean isFloatButtonShown() {
+        return floatButtonView.getParent() != null;
+    }
+
+    private boolean isFloatTextShown() {
+        return floatWindowView.getParent() != null;
+    }
+
+    private void addButtonWindow() {
+        windowManager.addView(floatButtonView, buttonParams);
+    }
+
+    private void removeButtonWindow() {
+        windowManager.removeView(floatButtonView);
+    }
+
     public void resetFloatButtonLocation() {
-        if (isButtonViewAdded) {
-            locationPreferences.edit().remove("locationX").remove("locationY").apply();
-            resetLocation();
-            if (floatButtonView.getWindowToken() != null) {
-                windowManager.updateViewLayout(floatButtonView, buttonParams);
-            } else {
-                Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
-            }
+        locationPreferences.edit().remove("locationX").remove("locationY").apply();
+        resetLocation();
+        if (isFloatButtonShown()) {
+            windowManager.updateViewLayout(floatButtonView, buttonParams);
         }
     }
 
@@ -162,38 +234,30 @@ public class FloatView {
     }
 
     public void showFloatText() {
-        if (!isTextViewAdded) {
-            windowManager.addView(floatWindowView, textParams);
-            isTextViewAdded = true;
+        if (isFloatTextShown()) {
+            return;
         }
+        windowManager.addView(floatWindowView, textParams);
     }
 
     public void showFloatButton() {
-        if (!isButtonViewAdded) {
-            resetLocation();
-            windowManager.addView(floatButtonView, buttonParams);
-            isButtonViewAdded = true;
+        if (isFloatButtonShown()) {
+            return;
         }
+        resetLocation();
+        addButtonWindow();
     }
 
     public void hideFloatText() {
         stopAnimation();
-        if (isTextViewAdded) {
+        if (isFloatTextShown()) {
             windowManager.removeView(floatWindowView);
-            isTextViewAdded = false;
         }
     }
 
-    public void hideFloatButton(boolean isNotification) {
-        if (isButtonViewAdded) {
-            if (floatButtonView.getWindowToken() != null) {
-                windowManager.removeView(floatButtonView);
-                isButtonViewAdded = false;
-            } else {
-                if (isNotification) {
-                    Toast.makeText(context, R.string.text_restart_app, Toast.LENGTH_SHORT).show();
-                }
-            }
+    public void hideFloatButton() {
+        if (isFloatButtonShown()) {
+            removeButtonWindow();
         }
     }
 
@@ -231,7 +295,7 @@ public class FloatView {
                 text = draw();
                 if (text.isEmpty()) {
                     cancelAnimation();
-                    Toast.makeText(context, R.string.text_is_null, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(appContext, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                     return;
                 }
             } else {

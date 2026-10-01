@@ -36,7 +36,6 @@
     <string name="about_message_2">「編集」機能の初期パスワードは123456です。</string>
     <string name="about_message_3">フローティングボタンの上の空白部分をドラッグしてフローティングボタンを移動できます。</string>
     <string name="text_is_null">内容は空にできません</string>
-    <string name="text_restart_app">再起動後に有効</string>
     <string name="lists_edit_tip">英語のカンマ（,）で区切ってください</string>
     <string name="dialog_password_warning_title">パスワードを変更してください</string>
     <string name="dialog_password_warning_text">現在、初期パスワードを使用しています。リストの内容が悪意を持って改ざんされるのを防ぐため、編集ページ下部のツールバーにある「パスワード」ボタンをクリックして、速やかにパスワードを変更してください。</string>
