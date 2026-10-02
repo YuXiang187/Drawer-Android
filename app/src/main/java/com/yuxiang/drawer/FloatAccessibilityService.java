@@ -31,9 +31,9 @@ import java.util.List;
 public class FloatAccessibilityService extends AccessibilityService {
     private static final String TAG = "FloatAccessibility";
 
-    private static boolean connected = false;
+    private static volatile boolean connected = false;
     // used to ask for the window manager of the accessibility layer
-    private static FloatAccessibilityService instance;
+    private static volatile FloatAccessibilityService instance;
 
     public static boolean isConnected() {
         return connected;

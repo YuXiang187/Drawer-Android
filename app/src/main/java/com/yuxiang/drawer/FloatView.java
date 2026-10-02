@@ -338,7 +338,7 @@ public class FloatView {
     }
 
     private void removeButtonWindow() {
-        windowManager.removeView(floatButtonView);
+        removeWindow(floatButtonView);
     }
 
     public void resetFloatButtonLocation() {
@@ -378,7 +378,7 @@ public class FloatView {
     public void hideFloatText() {
         stopAnimation();
         if (isFloatTextShown()) {
-            windowManager.removeView(floatWindowView);
+            removeWindow(floatWindowView);
         }
     }
 

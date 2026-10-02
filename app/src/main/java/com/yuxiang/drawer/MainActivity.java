@@ -64,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
             (preferences, key) -> {
-                if ("float_state".equals(key)) {
+                if ("float_state".equals(key) && floatSwitch != null) {
                     floatSwitch.setChecked(preferences.getBoolean(key, false));
-                } else if ("background_state".equals(key)) {
+                } else if ("background_state".equals(key) && backgroundSwitch != null) {
                     backgroundSwitch.setChecked(preferences.getBoolean(key, false));
                 }
             };
