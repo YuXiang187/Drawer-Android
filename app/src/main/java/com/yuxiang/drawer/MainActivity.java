@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         backgroundInfoButton = findViewById(R.id.background_info_button);
+        TooltipCompat.setTooltipText(backgroundInfoButton, getString(R.string.action_background_info));
         backgroundInfoButton.setOnClickListener(view -> showFloatModeTooltip());
 
         backgroundSwitch = findViewById(R.id.background_switch);

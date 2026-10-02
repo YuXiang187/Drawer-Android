@@ -46,7 +46,7 @@
     <string name="dialog_reset_location_text">确定要将悬浮按钮重置到默认位置吗？</string>
     <string name="action_background_info">显示方式</string>
     <string name="tooltip_float_mode_off_title">悬浮按钮未开启</string>
-    <string name="tooltip_float_mode_off_text">悬浮按钮未开启，请先打开“悬浮按钮”开关</string>
+    <string name="tooltip_float_mode_off_text">悬浮按钮未开启，请先打开“悬浮按钮”</string>
     <string name="tooltip_float_mode_activity_title">主界面</string>
     <string name="tooltip_float_mode_activity_text">悬浮按钮运行在主界面进程上，按钮随应用进程存亡</string>
     <string name="tooltip_float_mode_service_title">前台服务</string>
@@ -88,6 +88,6 @@
     <string name="dialog_accessibility_text">开启无障碍服务后，悬浮按钮将可以显示在系统受限界面。\n\n本应用只使用该权限保持悬浮按钮显示，不会读取屏幕内容，也不会执行点击或手势操作。\n\n若暂不开启，将仅使用前台服务显示。</string>
     <string name="dialog_accessibility_open">去开启</string>
     <string name="dialog_accessibility_skip">暂不开启</string>
-    <string name="text_accessibility_permission">已开启无障碍服务</string>
-    <string name="text_no_accessibility_permission">未开启无障碍服务</string>
+    <string name="text_accessibility_permission">无障碍服务开启</string>
+    <string name="text_no_accessibility_permission">无障碍服务关闭</string>
 </resources>

@@ -35,7 +35,7 @@
     <string name="text_is_discard">確認丟棄所有內容？</string>
     <string name="lists_saved">清單已儲存</string>
     <string name="about_message_1">名稱隨機抽取程式。</string>
-    <string name="about_message_2">“編輯”功能的初始密碼為123456。</string>
+    <string name="about_message_2">「編輯」功能的初始密碼為123456。</string>
     <string name="about_message_3">拖動懸浮按鈕上方的空白區域可拖動懸浮按鈕。</string>
     <string name="text_is_null">內容不能為空</string>
     <string name="lists_edit_tip">使用英文逗號（,）分割</string>
@@ -46,7 +46,7 @@
     <string name="dialog_reset_location_text">確定要將懸浮按鈕重設為預設位置嗎？</string>
     <string name="action_background_info">顯示方式</string>
     <string name="tooltip_float_mode_off_title">懸浮按鈕未開啟</string>
-    <string name="tooltip_float_mode_off_text">懸浮按鈕未開啟，請先開啟「懸浮按鈕」開關</string>
+    <string name="tooltip_float_mode_off_text">懸浮按鈕未開啟，請先開啟「懸浮按鈕」</string>
     <string name="tooltip_float_mode_activity_title">主畫面</string>
     <string name="tooltip_float_mode_activity_text">懸浮按鈕執行在主畫面程序上，按鈕隨應用程式程序存亡</string>
     <string name="tooltip_float_mode_service_title">前景服務</string>
@@ -88,6 +88,6 @@
     <string name="dialog_accessibility_text">開啟無障礙服務後，懸浮按鈕將可以顯示在系統受限介面。\n\n本應用程式只使用此權限維持懸浮按鈕顯示，不會讀取螢幕內容，也不會執行點擊或手勢操作。\n\n若暫不開啟，將僅使用前景服務顯示。</string>
     <string name="dialog_accessibility_open">去開啟</string>
     <string name="dialog_accessibility_skip">暫不開啟</string>
-    <string name="text_accessibility_permission">已開啟無障礙服務</string>
-    <string name="text_no_accessibility_permission">未開啟無障礙服務</string>
+    <string name="text_accessibility_permission">無障礙服務開啟</string>
+    <string name="text_no_accessibility_permission">無障礙服務關閉</string>
 </resources>
