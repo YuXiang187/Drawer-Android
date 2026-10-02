@@ -3,6 +3,7 @@ package com.yuxiang.drawer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -141,7 +142,16 @@ public class MainActivity extends AppCompatActivity {
 
         bootSwitch = findViewById(R.id.start_on_boot_switch);
         bootSwitch.setChecked(settingsPreferences.getBoolean("boot_state", false));
-        bootSwitch.setOnCheckedChangeListener((compoundButton, b) -> settingsPreferences.edit().putBoolean("boot_state", b).apply());
+        bootSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            settingsPreferences.edit().putBoolean("boot_state", b).apply();
+            if (b && isInstalledOnExternalStorage()) {
+                // Apps on SD cards cannot auto-start after boot
+                new MaterialAlertDialogBuilder(this)
+                        .setMessage(R.string.text_boot_external_storage)
+                        .setNegativeButton(R.string.ok, null)
+                        .show();
+            }
+        });
 
         floatSwitch = findViewById(R.id.float_switch);
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
@@ -267,6 +277,10 @@ public class MainActivity extends AppCompatActivity {
             floatView.hideFloatText();
         }
         super.onDestroy();
+    }
+
+    private boolean isInstalledOnExternalStorage() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0;
     }
 
     private boolean requestNotificationPermission() {

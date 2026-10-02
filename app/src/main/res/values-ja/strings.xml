@@ -90,4 +90,5 @@
     <string name="dialog_accessibility_skip">今はしない</string>
     <string name="text_accessibility_permission">ユーザー補助サービス：オン</string>
     <string name="text_no_accessibility_permission">ユーザー補助サービス：オフ</string>
+    <string name="text_boot_external_storage">SD カードにインストールすると、起動時の自動起動は使用できません。</string>
 </resources>
