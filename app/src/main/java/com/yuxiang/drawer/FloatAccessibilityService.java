@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import java.util.List;
@@ -31,9 +32,21 @@ public class FloatAccessibilityService extends AccessibilityService {
     private static final String TAG = "FloatAccessibility";
 
     private static boolean connected = false;
+    // used to ask for the window manager of the accessibility layer
+    private static FloatAccessibilityService instance;
 
     public static boolean isConnected() {
         return connected;
+    }
+
+    @Nullable
+    public static WindowManager getAccessibilityWindowManager() {
+        FloatAccessibilityService service = instance;
+        // null while this service is not connected
+        if (!connected || service == null) {
+            return null;
+        }
+        return (WindowManager) service.getSystemService(WINDOW_SERVICE);
     }
 
     // True when the user enables this service in accessibility settings
@@ -64,7 +77,14 @@ public class FloatAccessibilityService extends AccessibilityService {
     protected void onServiceConnected() {
         super.onServiceConnected();
         connected = true;
+        instance = this;
         Log.i(TAG, "Service connected");
+
+        FloatView floatView = FloatView.peekInstance();
+        if (floatView != null) {
+            // Overlay the button over restricted system areas
+            floatView.useAccessibilityOverlay(getAccessibilityWindowManager());
+        }
 
         // Only take the floating button over when it is supposed to stay alive in the background
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
@@ -78,16 +98,14 @@ public class FloatAccessibilityService extends AccessibilityService {
         AppCompatDelegate.setDefaultNightMode(themeIndex == 0
                 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : themeIndex);
 
-        FloatView floatView = FloatView.getInstance(this);
-        // Overlay the button over restricted system areas
-        floatView.useAccessibilityOverlay((WindowManager) getSystemService(WINDOW_SERVICE));
-        floatView.showFloatButton();
+        FloatView.getInstance(this).showFloatButton();
         FloatService.sync(this);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         connected = false;
+        instance = null;
         Log.i(TAG, "Service unbound");
         FloatView floatView = FloatView.peekInstance();
         if (floatView != null) {
@@ -101,6 +119,7 @@ public class FloatAccessibilityService extends AccessibilityService {
     @Override
     public void onDestroy() {
         connected = false;
+        instance = null;
         super.onDestroy();
     }
 

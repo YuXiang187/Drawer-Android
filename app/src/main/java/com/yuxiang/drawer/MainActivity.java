@@ -387,6 +387,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void hideFloatButton() {
+        settingsPreferences.edit().putBoolean("float_state", false).apply();
+        floatView.hideFloatButton();
+        floatView.hideFloatText();
+        // hand the windows back to the layer the app owns
+        floatView.useRegularOverlay();
+    }
+
     private void onDrawClicked() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
             // reuse the floating window
@@ -433,8 +441,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menu_close) {
             moveTaskToBack(true);
         } else if (id == R.id.menu_exit) {
-            floatView.hideFloatButton();
-            floatView.hideFloatText();
+            hideFloatButton();
             FloatService.stopNow(this);
             finishAffinity();
         } else if (id == R.id.menu_about) {

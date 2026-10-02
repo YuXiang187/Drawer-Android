@@ -17,6 +17,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewManager;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -115,6 +118,10 @@ public class FloatView {
         textParams.gravity = Gravity.CENTER;
 
         inflateWindows(nightMode);
+
+        // The accessibility service may already be connected, in that case it hosts the windows
+        this.accessibilityWindowManager = FloatAccessibilityService.getAccessibilityWindowManager();
+        windowManager = accessibilityWindowManager != null ? accessibilityWindowManager : appWindowManager;
     }
 
     // Shows both windows on the accessibility layer
@@ -150,6 +157,11 @@ public class FloatView {
         }
     }
 
+    // moves both windows to the accessibility layer while the service is connected
+    public void useAccessibilityOverlayIfAvailable() {
+        useAccessibilityOverlay(FloatAccessibilityService.getAccessibilityWindowManager());
+    }
+
     // shows both windows as regular overlays again
     public void useRegularOverlay() {
         useAccessibilityOverlay(null);
@@ -172,6 +184,8 @@ public class FloatView {
 
     // fallback to the regular overlay
     private void addWindow(View view, WindowManager.LayoutParams params) {
+        // A view that is still attached to the layer it came from would be refused
+        detachFromParent(view);
         try {
             windowManager.addView(view, params);
         } catch (RuntimeException e) {
@@ -183,7 +197,26 @@ public class FloatView {
             windowManager = appWindowManager;
             params.type = windowType();
             params.token = null;
+            detachFromParent(view);
             windowManager.addView(view, params);
+        }
+    }
+
+    // releases a view that the window manager no longer owns
+    private void detachFromParent(View view) {
+        ViewParent parent = view.getParent();
+        if (parent == null) {
+            return;
+        }
+        Log.w(TAG, "Detaching the overlay window from its stale parent");
+        try {
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(view);
+            } else {
+                ((ViewManager) parent).removeView(view);
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Cannot detach the overlay window from its stale parent", e);
         }
     }
 
@@ -193,6 +226,8 @@ public class FloatView {
         } catch (RuntimeException e) {
             Log.w(TAG, "Cannot remove the overlay window", e);
         }
+        // The window manager may already have dropped the window without clearing the parent
+        detachFromParent(view);
     }
 
     private void inflateWindows(int nightMode) {
@@ -334,6 +369,8 @@ public class FloatView {
         if (isFloatButtonShown()) {
             return;
         }
+        // accessibility service may have connected while the button was hidden
+        useAccessibilityOverlayIfAvailable();
         resetLocation();
         addButtonWindow();
     }
