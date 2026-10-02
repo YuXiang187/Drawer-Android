@@ -19,44 +19,20 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.ServiceCompat;
 
 /**
- * Keeps the process (and therefore the floating button window) alive while the app is not in the
- * foreground. It is optional: the service only runs when the user enabled both "Float button" and
- * "Run in background".
+ * Keeps the floating button alive in the background.
  *
- * <p>The user can pick a second way of keeping the button alive: when the accessibility service
- * ({@link FloatAccessibilityService}) is enabled, it is bound by the system and hosts the button on
- * the accessibility layer, so this foreground service - and its ongoing notification - is not
- * needed and stays stopped. As soon as the accessibility service is gone, this service takes over
- * again.
+ * <p>It is optional and only runs when background mode is enabled without the accessibility
+ * service. If the accessibility service is available, it keeps the button alive instead.
  *
- * <p>Compatibility notes for minSdk 21 / targetSdk 35:
- * <ul>
- *     <li>API 26+: a service started from the background must be started with
- *     {@link Context#startForegroundService(Intent)} and call {@code startForeground()} within a few
- *     seconds, which {@link #onStartCommand} does on every path.</li>
- *     <li>API 28+: the {@code FOREGROUND_SERVICE} permission is required (declared in the
- *     manifest).</li>
- *     <li>API 29+: {@code android:foregroundServiceType} is declared in the manifest; on API 34+
- *     the type must also be passed to {@code startForeground()} together with the matching
- *     {@code FOREGROUND_SERVICE_SPECIAL_USE} permission. On older releases the type is left out so
- *     that the platforms that do not know {@code specialUse} never have to interpret it.</li>
- *     <li>API 33+: the ongoing notification is only visible when {@code POST_NOTIFICATIONS} is
- *     granted; without it the service still runs (the user sees it in the foreground service task
- *     manager).</li>
- *     <li>Android 12+ forbids starting a foreground service from the background; the start from
- *     this app is covered by a visible activity and by the overlay permission, and the floating
- *     button is always added before the service is started (which Android 15 requires explicitly).
- *     A restart of a sticky foreground service by the system is exempt from that rule.</li>
- * </ul>
+ * <p>Handles foreground service requirements across Android versions.
  */
 public class FloatService extends Service {
     private static final String TAG = "FloatService";
     private static final String CHANNEL_ID = "float_button";
     private static final int NOTIFICATION_ID = 1;
-    // Notification action: hide the floating button and stop the service.
     private static final String ACTION_HIDE = "com.yuxiang.drawer.action.HIDE_FLOAT_BUTTON";
 
-    // Starts or stops the service so that it matches the two settings.
+    // starts or stops the service so that it matches the two settings
     public static void sync(Context context) {
         if (shouldRun(context)) {
             start(context);
@@ -65,8 +41,6 @@ public class FloatService extends Service {
         }
     }
 
-    // True while the floating button is supposed to stay alive while the app is not in the
-    // foreground, no matter which of the two ways keeps it alive.
     public static boolean shouldKeepAlive(Context context) {
         SharedPreferences preferences = context.getSharedPreferences("settings", MODE_PRIVATE);
         return preferences.getBoolean("float_state", false)
@@ -74,14 +48,11 @@ public class FloatService extends Service {
                 && canDrawOverlays(context);
     }
 
-    // True while this foreground service is the one that has to keep the process alive. While the
-    // accessibility service is connected it hosts the floating button itself, so no notification
-    // has to be shown.
     public static boolean shouldRun(Context context) {
         return shouldKeepAlive(context) && !FloatAccessibilityService.isConnected();
     }
 
-    // Stops the service whatever the settings say (used by the "Exit" menu entry).
+    // used by the Exit menu entry
     public static void stopNow(Context context) {
         context.stopService(new Intent(context, FloatService.class));
     }
@@ -99,9 +70,6 @@ public class FloatService extends Service {
                 context.startService(intent);
             }
         } catch (RuntimeException e) {
-            // For example ForegroundServiceStartNotAllowedException on Android 12+ when the start
-            // is not allowed, or a restricted OEM build. The floating button then simply lives as
-            // long as the process does, instead of taking the app down.
             Log.w(TAG, "Cannot start the background service", e);
         }
     }
@@ -117,8 +85,6 @@ public class FloatService extends Service {
         // Every start (including a restart by the system, which delivers a null Intent) has to
         // post the notification quickly, also on the way out, otherwise the platform kills us.
         if (!showNotification()) {
-            // The platform refused to turn us into a foreground service: stop instead of being
-            // killed for not posting the notification in time.
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -140,7 +106,7 @@ public class FloatService extends Service {
         }
 
         FloatView.getInstance(this).showFloatButton();
-        // Let the system bring the service - and the floating button - back if it kills the process
+        // Try to restore the service if the system interrupts it
         return START_STICKY;
     }
 
@@ -156,28 +122,22 @@ public class FloatService extends Service {
         return null;
     }
 
-    // return false when the platform refused the foreground notification.
+    // return false when the platform refused the foreground notification
     private boolean showNotification() {
         Notification notification = buildNotification();
         try {
-            // ServiceCompat hides the platform differences of this call: the two argument version
-            // below API 29, the type masked to the flags those releases understand on API 29-33
-            // (they do not know specialUse yet), and the real specialUse type on API 34+, where
-            // declaring FOREGROUND_SERVICE_SPECIAL_USE is mandatory.
+            // API 34+ require the specialUse type
             ServiceCompat.startForeground(this, NOTIFICATION_ID, notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
             return true;
         } catch (RuntimeException e) {
-            // For example SecurityException on API 34+ when the type permission is missing, or a
-            // restricted OEM build.
             Log.w(TAG, "startForeground failed", e);
             return false;
         }
     }
 
     private Notification buildNotification() {
-        // Behave like the launcher icon: bring the existing task to the front instead of adding
-        // another MainActivity instance on top of it.
+        // bring the existing task to the front
         Intent openIntent = new Intent(this, MainActivity.class)
                 .setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -217,7 +177,6 @@ public class FloatService extends Service {
         manager.createNotificationChannel(channel);
     }
 
-    // FLAG_IMMUTABLE only exists from API 23 and is mandatory from API 31 on.
     private static int pendingIntentFlags() {
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

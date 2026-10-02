@@ -10,4 +10,8 @@
     <dimen name="spacing_m">12dp</dimen>
     <dimen name="spacing_l">16dp</dimen>
     <dimen name="spacing_xl">24dp</dimen>
+
+    <dimen name="tooltip_corner_radius">12dp</dimen>
+    <dimen name="tooltip_elevation">2dp</dimen>
+    <dimen name="tooltip_max_width">280dp</dimen>
 </resources>

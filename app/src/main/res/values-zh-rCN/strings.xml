@@ -12,7 +12,7 @@
     <string name="menu_about">关于</string>
     <string name="text_get_permission">已获取权限</string>
     <string name="text_no_permission">未获取权限</string>
-    <string name="text_no_notification_permission">通知权限被拒绝：应用仍会在后台运行，但不会显示通知。</string>
+    <string name="text_no_notification_permission">通知权限被拒绝</string>
     <string name="menu_theme">主题</string>
     <string name="theme_system">跟随系统</string>
     <string name="theme_white">白色模式</string>
@@ -44,6 +44,18 @@
     <string name="settings_location_switch">记住位置</string>
     <string name="action_reset_location">重置位置</string>
     <string name="dialog_reset_location_text">确定要将悬浮按钮重置到默认位置吗？</string>
+    <string name="action_background_info">显示方式</string>
+    <string name="tooltip_float_mode_off_title">悬浮按钮未开启</string>
+    <string name="tooltip_float_mode_off_text">悬浮按钮未开启，请先打开“悬浮按钮”开关</string>
+    <string name="tooltip_float_mode_activity_title">主界面</string>
+    <string name="tooltip_float_mode_activity_text">悬浮按钮运行在主界面进程上，按钮随应用进程存亡</string>
+    <string name="tooltip_float_mode_service_title">前台服务</string>
+    <string name="tooltip_float_mode_service_text">悬浮按钮运行在前台服务上，无法在系统受限界面显示</string>
+    <string name="tooltip_float_mode_accessibility_title">无障碍服务</string>
+    <string name="tooltip_float_mode_accessibility_text">悬浮按钮运行在无障碍服务上，可在系统受限界面显示</string>
+    <string name="tooltip_accessibility_running_title">无障碍服务仍在运行</string>
+    <string name="tooltip_accessibility_running_text">可前往系统设置页面关闭</string>
+    <string name="tooltip_accessibility_running_action">前往</string>
     <string name="action_import">导入</string>
     <string name="action_export">导出</string>
     <string name="action_find">查找</string>

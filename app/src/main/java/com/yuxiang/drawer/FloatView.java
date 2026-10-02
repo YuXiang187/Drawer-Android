@@ -72,12 +72,7 @@ public class FloatView {
         }
     };
 
-    /**
-     * Returns the one and only overlay controller of this process.
-     *
-     * @param context any context; only its configuration (light/dark) is taken from it, never the
-     *                context itself, so no Activity can be leaked by the long living windows.
-     */
+    // Returns the overlay controller for this process
     public static synchronized FloatView getInstance(Context context) {
         int nightMode = nightModeOf(context);
         if (instance == null) {
@@ -88,10 +83,7 @@ public class FloatView {
         return instance;
     }
 
-    /**
-     * Returns the controller of this process without creating one, or null when there is none yet.
-     * Used by the accessibility service, which must not inflate the overlay just to release it.
-     */
+    // Returns this process's controller, or null if none exists
     public static synchronized FloatView peekInstance() {
         return instance;
     }
@@ -125,23 +117,11 @@ public class FloatView {
         inflateWindows(nightMode);
     }
 
-    /**
-     * Shows both windows on the accessibility layer, which the given service hosts.
-     *
-     * <p>The manager has to be the one returned by
-     * {@code AccessibilityService.getSystemService(WINDOW_SERVICE)}: only that instance carries the
-     * accessibility overlay window token. Without the token the platform refuses an accessibility
-     * overlay window, and a regular overlay window is hidden over system UI such as the settings or
-     * the notification shade.
-     *
-     * @param accessibilityWindowManager the window manager of the connected accessibility service.
-     */
+    // Shows both windows on the accessibility layer
     public void useAccessibilityOverlay(WindowManager accessibilityWindowManager) {
         if (this.accessibilityWindowManager == accessibilityWindowManager) {
             return;
         }
-        // Both windows are bound to the layer they were added with, so they have to be re-created
-        // when the layer changes. Remove them first, while they are still addressed on that layer.
         boolean textShown = isFloatTextShown();
         boolean buttonShown = isFloatButtonShown();
         if (textShown) {
@@ -154,10 +134,6 @@ public class FloatView {
         this.accessibilityWindowManager = accessibilityWindowManager;
         windowManager = accessibilityWindowManager != null ? accessibilityWindowManager : appWindowManager;
 
-        // Re-creating a window can be refused when the layer it needs is not permitted, for example
-        // when the "display over other apps" permission was revoked while the accessibility service
-        // hosted the button. The window then simply stays hidden, like it does whenever that
-        // permission is missing.
         if (buttonShown) {
             try {
                 addButtonWindow();
@@ -174,15 +150,17 @@ public class FloatView {
         }
     }
 
-    /**
-     * Shows both windows as regular overlays again. This is the layer the app has always used, and
-     * it needs the "display over other apps" permission.
-     */
+    // shows both windows as regular overlays again
     public void useRegularOverlay() {
         useAccessibilityOverlay(null);
     }
 
-    // The window type of both overlay windows, depending on the permission that shows them.
+    // true while both overlay windows are hosted by the accessibility service
+    public boolean usesAccessibilityOverlay() {
+        return accessibilityWindowManager != null;
+    }
+
+    // the window type of both overlay windows, depending on the permission that shows them
     private int windowType() {
         if (accessibilityWindowManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             return WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
@@ -192,9 +170,7 @@ public class FloatView {
                 : WindowManager.LayoutParams.TYPE_PHONE;
     }
 
-    // Adds one of the overlay windows, falling back to the regular overlay layer when the platform
-    // refuses the accessibility layer, for example when the accessibility service was turned off in
-    // the system settings between the last check and this call.
+    // fallback to the regular overlay
     private void addWindow(View view, WindowManager.LayoutParams params) {
         try {
             windowManager.addView(view, params);
@@ -250,7 +226,7 @@ public class FloatView {
                         if (settingsPreferences.getBoolean("is_remember_location", false)) {
                             saveLocation();
                         }
-                        // Detect if it is a click event (you can determine if it is a click based on the distance moved)
+                        // detect if it is a click event
                         if (Math.abs(event.getRawX() - initialTouchX) < 10 && Math.abs(event.getRawY() - initialTouchY) < 10) {
                             v.performClick();
                         }
@@ -268,7 +244,6 @@ public class FloatView {
         inflatedNightMode = nightMode;
     }
 
-    // The windows are inflated from the application context, with the theme the app shows.
     private Context createOverlayContext(int nightMode) {
         Configuration configuration = new Configuration(appContext.getResources().getConfiguration());
         configuration.uiMode = (configuration.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | nightMode;
@@ -287,7 +262,7 @@ public class FloatView {
         }
     }
 
-    // Rebuilds both windows when the in app theme (or the system theme) changed.
+    // Rebuilds both windows when the in-app theme changed
     private void applyNightMode(int nightMode) {
         if (nightMode == inflatedNightMode) {
             return;
@@ -311,7 +286,7 @@ public class FloatView {
         buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
     }
 
-    // True while the floating button window is registered with the window manager.
+    // true while the floating button window is registered with the window manager
     public boolean isFloatButtonShown() {
         return floatButtonView.getParent() != null;
     }

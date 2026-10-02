@@ -12,7 +12,7 @@
     <string name="menu_about">このアプリについて</string>
     <string name="text_get_permission">許可が付与されました</string>
     <string name="text_no_permission">許可されていません</string>
-    <string name="text_no_notification_permission">通知の権限が拒否されました。バックグラウンドでは引き続き動作しますが、通知は表示されません。</string>
+    <string name="text_no_notification_permission">通知の権限が拒否されました</string>
     <string name="menu_theme">テーマ</string>
     <string name="theme_system">システムに従う</string>
     <string name="theme_white">ホワイトモード</string>
@@ -44,6 +44,18 @@
     <string name="settings_location_switch">場所を記憶する</string>
     <string name="action_reset_location">位置をリセット</string>
     <string name="dialog_reset_location_text">フローティングボタンを既定の位置にリセットしますか？</string>
+    <string name="action_background_info">表示方法</string>
+    <string name="tooltip_float_mode_off_title">フローティングボタンはオフです</string>
+    <string name="tooltip_float_mode_off_text">フローティングボタンがオフです。先に「フローティングボタン」をオンにしてください</string>
+    <string name="tooltip_float_mode_activity_title">メイン画面</string>
+    <string name="tooltip_float_mode_activity_text">フローティングボタンはメイン画面のプロセスで動作し、アプリのプロセスとともに終了します</string>
+    <string name="tooltip_float_mode_service_title">フォアグラウンドサービス</string>
+    <string name="tooltip_float_mode_service_text">フローティングボタンはフォアグラウンドサービスで動作するため、システムの制限された画面には表示できません</string>
+    <string name="tooltip_float_mode_accessibility_title">ユーザー補助サービス</string>
+    <string name="tooltip_float_mode_accessibility_text">フローティングボタンはユーザー補助サービスで動作し、システムの制限された画面にも表示できます</string>
+    <string name="tooltip_accessibility_running_title">ユーザー補助サービスは実行中です</string>
+    <string name="tooltip_accessibility_running_text">システム設定から無効にできます</string>
+    <string name="tooltip_accessibility_running_action">移動</string>
     <string name="action_import">インポート</string>
     <string name="action_export">エクスポート</string>
     <string name="action_find">検索</string>

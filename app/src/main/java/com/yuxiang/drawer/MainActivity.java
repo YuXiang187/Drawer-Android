@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +36,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -52,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     Button editButton;
     Button statButton;
     ImageButton resetLocationButton;
+    ImageButton backgroundInfoButton;
+
+    private PopupWindow richTooltip;
 
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
             (preferences, key) -> {
@@ -105,23 +113,16 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        // Android 13 (API 33) and newer: the ongoing notification of the background service is
-        // only visible with this runtime permission. The service itself runs either way.
         notificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
                 granted -> {
                     if (!granted) {
                         Toast.makeText(this, getString(R.string.text_no_notification_permission), Toast.LENGTH_LONG).show();
                     }
-                    // The button is kept alive by the foreground service at this point; the user is
-                    // asked about the accessibility alternative only afterward, so that both
-                    // dialogs do not overlap.
                     askForAccessibilityService();
                 }
         );
 
-        // The user comes back from the system accessibility settings. When the service is enabled
-        // the accessibility service takes the floating button over, otherwise the foreground
-        // service stays in charge, which is the fallback the user chose by declining.
+        // the user comes back from the system accessibility settings
         accessibilitySettingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (FloatAccessibilityService.isEnabled(this) || FloatAccessibilityService.isConnected()) {
@@ -129,8 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(this, getString(R.string.text_no_accessibility_permission), Toast.LENGTH_LONG).show();
                     }
-                    // The accessibility service itself hands the button over when it connects, and
-                    // the foreground service takes over again when it is not enabled.
+                    // The accessibility service itself hands the button over when it connects
                     FloatService.sync(this);
                 }
         );
@@ -166,20 +166,24 @@ public class MainActivity extends AppCompatActivity {
             FloatService.sync(this);
         });
 
+        backgroundInfoButton = findViewById(R.id.background_info_button);
+        backgroundInfoButton.setOnClickListener(view -> showFloatModeTooltip());
+
         backgroundSwitch = findViewById(R.id.background_switch);
         backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
         backgroundSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             settingsPreferences.edit().putBoolean("background_state", b).apply();
             if (b) {
-                // Keep the button alive with the foreground service first; the accessibility
-                // alternative is offered right after that, and when the user agrees it takes the
-                // floating button over (see the notification permission result above).
+                // Start with the foreground service; offer the accessibility alternative right after
                 FloatService.sync(this);
                 if (!requestNotificationPermission()) {
                     askForAccessibilityService();
                 }
             } else {
                 FloatService.sync(this);
+                if (floatView.usesAccessibilityOverlay()) {
+                    backgroundInfoButton.post(this::showAccessibilityStillRunningTooltip);
+                }
             }
         });
 
@@ -250,14 +254,12 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
-        // The accessibility service may have been turned on or off in the system settings while the
-        // app was in the background (or the foreground service could not be restarted from there):
-        // pick the way of keeping the button alive that matches the current state.
         FloatService.sync(this);
     }
 
     @Override
     protected void onDestroy() {
+        dismissRichTooltip();
         settingsPreferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
         if (isFinishing() && !FloatService.shouldKeepAlive(this)) {
             floatView.hideFloatButton();
@@ -266,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    // Launches the system notification permission dialog when it is needed and reports whether it
-    // did, so that the caller knows whether a dialog is going to be shown.
     private boolean requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -278,8 +278,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // Offers to show the floating button with the accessibility permission instead of the
-    // foreground service. Declining keeps the foreground service, which is already running here.
     private void askForAccessibilityService() {
         if (isFinishing() || isDestroyed()) {
             return;
@@ -289,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (FloatAccessibilityService.isEnabled(this) || FloatAccessibilityService.isConnected()) {
-            // Already enabled: nothing to ask, the accessibility service hosts the button already.
+            // accessibility service enabled
             FloatService.sync(this);
             return;
         }
@@ -304,14 +302,84 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void showFloatModeTooltip() {
+        if (!settingsPreferences.getBoolean("float_state", false)) {
+            showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_off_title),
+                    getString(R.string.tooltip_float_mode_off_text), null, null);
+        } else if (floatView.usesAccessibilityOverlay()) {
+            showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_accessibility_title),
+                    getString(R.string.tooltip_float_mode_accessibility_text), null, null);
+        } else if (settingsPreferences.getBoolean("background_state", false)) {
+            showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_service_title),
+                    getString(R.string.tooltip_float_mode_service_text), null, null);
+        } else {
+            showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_activity_title),
+                    getString(R.string.tooltip_float_mode_activity_text), null, null);
+        }
+    }
+
+    // app cannot stop the accessibility service, only the system settings can
+    private void showAccessibilityStillRunningTooltip() {
+        if (isFinishing() || isDestroyed() || !floatView.usesAccessibilityOverlay()) {
+            return;
+        }
+        showRichTooltip(backgroundInfoButton,
+                getString(R.string.tooltip_accessibility_running_title),
+                getString(R.string.tooltip_accessibility_running_text),
+                getString(R.string.tooltip_accessibility_running_action),
+                () -> accessibilitySettingsLauncher.launch(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+    }
+
+    private void showRichTooltip(View anchor, CharSequence title, CharSequence text,
+                                 CharSequence actionText, Runnable action) {
+        dismissRichTooltip();
+
+        View content = LayoutInflater.from(this).inflate(R.layout.view_rich_tooltip, null);
+        ((TextView) content.findViewById(R.id.tooltip_title)).setText(title);
+        ((TextView) content.findViewById(R.id.tooltip_text)).setText(text);
+        MaterialButton actionButton = content.findViewById(R.id.tooltip_action);
+        if (actionText != null && action != null) {
+            actionButton.setText(actionText);
+            actionButton.setVisibility(View.VISIBLE);
+            actionButton.setOnClickListener(view -> {
+                dismissRichTooltip();
+                action.run();
+            });
+        }
+
+        PopupWindow tooltip = new PopupWindow(content, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        // transparent background can dismiss it
+        tooltip.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        tooltip.setOutsideTouchable(true);
+        tooltip.setFocusable(true);
+        richTooltip = tooltip;
+
+        int screenWidth = anchor.getResources().getDisplayMetrics().widthPixels;
+        int margin = getResources().getDimensionPixelSize(R.dimen.spacing_s);
+        content.measure(View.MeasureSpec.makeMeasureSpec(screenWidth - 2 * margin, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        int[] anchorLocation = new int[2];
+        anchor.getLocationOnScreen(anchorLocation);
+        int overflow = anchorLocation[0] + content.getMeasuredWidth() - (screenWidth - margin);
+        tooltip.showAsDropDown(anchor, overflow > 0 ? -overflow : 0, 0);
+    }
+
+    private void dismissRichTooltip() {
+        if (richTooltip != null) {
+            richTooltip.dismiss();
+            richTooltip = null;
+        }
+    }
+
     private void onDrawClicked() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
-            // Reuse the floating window, exactly like the floating button.
+            // reuse the floating window
             floatView.run();
             return;
         }
 
-        // Without the overlay permission, display the drawn name in an in-app dialog.
+        // without the overlay permission, display the drawn name in an in-app dialog
         String name = floatView.draw();
         if (name.isEmpty()) {
             Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
