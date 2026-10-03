@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -56,6 +57,7 @@ public class GuideOverlay extends FrameLayout {
             new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
+                    maybeStart();
                     if (prepare()) {
                         requestLayout();
                     }
@@ -73,6 +75,8 @@ public class GuideOverlay extends FrameLayout {
     private float alpha;
     private int viewWidth;
     private int viewHeight;
+    private int scrolledWidth;
+    private int scrolledHeight;
     private float breath = 1f;
     private float ripple;
     private float rippleAlpha;
@@ -86,9 +90,10 @@ public class GuideOverlay extends FrameLayout {
     private ValueAnimator fadeAnimator;
 
     private OnEndListener endListener;
+    private boolean completed;
 
     public interface OnEndListener {
-        void onGuideEnd();
+        void onGuideEnd(boolean completed);
     }
 
     public GuideOverlay(Activity activity) {
@@ -131,13 +136,18 @@ public class GuideOverlay extends FrameLayout {
     }
 
     public void finish() {
-        endGuide();
+        endGuide(true);
     }
 
-    private void endGuide() {
+    public void cancel() {
+        endGuide(false);
+    }
+
+    private void endGuide(boolean completed) {
         if (target == null || ending) {
             return;
         }
+        this.completed = completed;
         ending = true;
         cancelAnimations();
         fadeAnimator = ValueAnimator.ofFloat(1f, 0f);
@@ -264,8 +274,52 @@ public class GuideOverlay extends FrameLayout {
             parent.removeView(this);
         }
         if (endListener != null) {
-            endListener.onGuideEnd();
+            endListener.onGuideEnd(completed);
         }
+    }
+
+    private void maybeStart() {
+        if (!started) {
+            if (target == null || getWidth() == 0 || getHeight() == 0
+                    || target.getWidth() == 0 || target.getHeight() == 0) {
+                return;
+            }
+            started = true;
+            prepare();
+            scrollTargetIntoView();
+            startRevealAnimation();
+            return;
+        }
+        if (getWidth() != scrolledWidth || getHeight() != scrolledHeight) {
+            prepare();
+            scrollTargetIntoView();
+        }
+    }
+
+    private void scrollTargetIntoView() {
+        scrolledWidth = getWidth();
+        scrolledHeight = getHeight();
+        if (!scrollTargetIntoView(centreY > getHeight() / 2f)) {
+            return;
+        }
+        prepare();
+        requestLayout();
+    }
+
+    private boolean scrollTargetIntoView(boolean cardAbove) {
+        if (target.getRootView() != getRootView()) {
+            return false;
+        }
+        final Rect rect = new Rect(0, 0, target.getWidth(), target.getHeight());
+        final int inset = (int) focalPadding;
+        final int card = (int) (textSpacing + textGroup.getMeasuredHeight());
+        rect.inset(-inset, -inset);
+        if (cardAbove) {
+            rect.top -= card;
+        } else {
+            rect.bottom += card;
+        }
+        return target.requestRectangleOnScreen(rect, true);
     }
 
     private boolean prepare() {
@@ -289,7 +343,9 @@ public class GuideOverlay extends FrameLayout {
         viewHeight = getHeight();
         targetRect.set(left, top, left + width, top + height);
         targetBounds.set(targetRect);
-        targetBounds.intersect(0f, 0f, viewWidth, viewHeight);
+        if (!targetBounds.intersect(0f, 0f, viewWidth, viewHeight)) {
+            targetBounds.setEmpty();
+        }
         focalBounds.set(targetBounds);
         focalBounds.inset(-focalPadding, -focalPadding);
         centreX = targetBounds.centerX();
@@ -326,12 +382,7 @@ public class GuideOverlay extends FrameLayout {
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        if (!started && target != null && width > 0 && height > 0
-                && target.getWidth() > 0 && target.getHeight() > 0) {
-            started = true;
-            prepare();
-            startRevealAnimation();
-        }
+        maybeStart();
     }
 
     @Override
@@ -349,11 +400,18 @@ public class GuideOverlay extends FrameLayout {
         prepare();
         final int groupWidth = textGroup.getMeasuredWidth();
         final int groupHeight = textGroup.getMeasuredHeight();
-        float groupLeft = centreX - (groupWidth / 2f);
+        float groupLeft;
+        float groupTop;
+        if (targetBounds.isEmpty()) {
+            groupLeft = (getWidth() - groupWidth) / 2f;
+            groupTop = getHeight() - textPadding - groupHeight;
+        } else {
+            groupLeft = centreX - (groupWidth / 2f);
+            groupTop = centreY > getHeight() / 2f
+                    ? focalBounds.top - textSpacing - groupHeight
+                    : focalBounds.bottom + textSpacing;
+        }
         groupLeft = Math.max(textPadding, Math.min(groupLeft, getWidth() - textPadding - groupWidth));
-        float groupTop = centreY > getHeight() / 2f
-                ? focalBounds.top - textSpacing - groupHeight
-                : focalBounds.bottom + textSpacing;
         groupTop = Math.max(textPadding, Math.min(groupTop, getHeight() - textPadding - groupHeight));
         textGroup.layout((int) groupLeft, (int) groupTop,
                 (int) groupLeft + groupWidth, (int) groupTop + groupHeight);

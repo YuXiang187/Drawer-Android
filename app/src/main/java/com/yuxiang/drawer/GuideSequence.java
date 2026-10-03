@@ -11,6 +11,8 @@ public class GuideSequence {
     private final List<Step> steps = new ArrayList<>();
     private int index;
     private boolean running;
+    private boolean shown;
+    private Runnable finishListener;
 
     public GuideSequence(Activity activity) {
         this.activity = activity;
@@ -25,6 +27,11 @@ public class GuideSequence {
         return add(targetId, 0, textId);
     }
 
+    public GuideSequence setOnFinishListener(Runnable listener) {
+        finishListener = listener;
+        return this;
+    }
+
     public boolean isRunning() {
         return running;
     }
@@ -35,6 +42,15 @@ public class GuideSequence {
         }
         running = true;
         index = 0;
+        shown = false;
+        showNext();
+    }
+
+    private void onStepEnd(boolean completed) {
+        if (!completed) {
+            running = false;
+            return;
+        }
         showNext();
     }
 
@@ -46,13 +62,19 @@ public class GuideSequence {
                 continue;
             }
             final GuideOverlay overlay = new GuideOverlay(activity);
-            overlay.setOnEndListener(this::showNext);
+            overlay.setOnEndListener(this::onStepEnd);
+            shown = true;
             overlay.show(target,
                     step.titleId == 0 ? null : activity.getString(step.titleId),
                     activity.getString(step.textId));
             return;
         }
         running = false;
+        if (shown && finishListener != null) {
+            final Runnable listener = finishListener;
+            finishListener = null;
+            listener.run();
+        }
     }
 
     private static class Step {

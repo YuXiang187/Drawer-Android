@@ -241,7 +241,6 @@ public class EditActivity extends AppCompatActivity {
         editText.setText(initPoolPreferences.getString("init", StringPool.DEFAULT_INIT));
 
         if (!settingsPreferences.getBoolean("guide_edit_shown", false)) {
-            settingsPreferences.edit().putBoolean("guide_edit_shown", true).apply();
             showWelcomeGuide();
         }
     }
@@ -370,7 +369,9 @@ public class EditActivity extends AppCompatActivity {
         activeGuide = new GuideSequence(this)
                 .add(R.id.bottom_import_btn, R.string.action_import, R.string.guide_import_text)
                 .add(R.id.bottom_password_btn, R.string.password, R.string.guide_password_text)
-                .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text);
+                .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text)
+                .setOnFinishListener(() -> settingsPreferences.edit()
+                        .putBoolean("guide_edit_shown", true).apply());
         activeGuide.start();
     }
 
