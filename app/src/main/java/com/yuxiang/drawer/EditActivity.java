@@ -200,8 +200,13 @@ public class EditActivity extends AppCompatActivity {
         passwordButton.setOnClickListener(v -> new PasswordManager(this).changePassword());
         TooltipCompat.setTooltipText(passwordButton, getString(R.string.password));
 
-        findViewById(R.id.add_btn).setOnClickListener(v -> addItem());
-        findViewById(R.id.remove_btn).setOnClickListener(v -> removeSelected());
+        MaterialButton addButton = findViewById(R.id.add_btn);
+        addButton.setOnClickListener(v -> addItem());
+        TooltipCompat.setTooltipText(addButton, getString(R.string.content_desc_add));
+
+        MaterialButton removeButton = findViewById(R.id.remove_btn);
+        removeButton.setOnClickListener(v -> removeSelected());
+        TooltipCompat.setTooltipText(removeButton, getString(R.string.content_desc_remove));
         addInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 addItem();
