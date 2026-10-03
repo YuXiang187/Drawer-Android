@@ -326,6 +326,29 @@ public class FloatView {
         return floatButtonView.getParent() != null;
     }
 
+    public View getFloatButtonView() {
+        return floatButtonView;
+    }
+
+    // lets the guide on top of the button receive the touches instead of the button
+    public void setTouchable(boolean touchable) {
+        int flags = touchable
+                ? buttonParams.flags & ~WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                : buttonParams.flags | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        if (flags == buttonParams.flags) {
+            return;
+        }
+        buttonParams.flags = flags;
+        if (!isFloatButtonShown()) {
+            return;
+        }
+        try {
+            windowManager.updateViewLayout(floatButtonView, buttonParams);
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Cannot change the touchability of the floating button", e);
+        }
+    }
+
     private boolean isFloatTextShown() {
         return floatWindowView.getParent() != null;
     }

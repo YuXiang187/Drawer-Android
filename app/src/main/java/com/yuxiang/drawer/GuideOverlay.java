@@ -77,7 +77,6 @@ public class GuideOverlay extends FrameLayout {
     private float ripple;
     private float rippleAlpha;
     private boolean rising = true;
-    private boolean focalPressed;
     private boolean ending;
     private boolean started;
 
@@ -85,6 +84,12 @@ public class GuideOverlay extends FrameLayout {
     private ValueAnimator breathAnimator;
     private ValueAnimator rippleAnimator;
     private ValueAnimator fadeAnimator;
+
+    private OnEndListener endListener;
+
+    public interface OnEndListener {
+        void onGuideEnd();
+    }
 
     public GuideOverlay(Activity activity) {
         super(activity);
@@ -114,25 +119,22 @@ public class GuideOverlay extends FrameLayout {
         }
         this.target = target;
         titleView.setText(title);
+        titleView.setVisibility(title == null || title.length() == 0 ? GONE : VISIBLE);
         descriptionView.setText(description);
         textGroup.setAlpha(0f);
         parent.addView(this, new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT));
     }
 
-    public boolean isShowing() {
-        return target != null && !ending;
+    public void setOnEndListener(OnEndListener listener) {
+        endListener = listener;
     }
 
     public void finish() {
-        endGuide(true);
+        endGuide();
     }
 
-    public void dismiss() {
-        endGuide(false);
-    }
-
-    private void endGuide(final boolean expand) {
+    private void endGuide() {
         if (target == null || ending) {
             return;
         }
@@ -145,7 +147,7 @@ public class GuideOverlay extends FrameLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float value = (float) animation.getAnimatedValue();
-                updateAnimation(expand ? 1f + ((1f - value) / 4f) : value, value);
+                updateAnimation(1f + ((1f - value) / 4f), value);
             }
         });
         fadeAnimator.addListener(new AnimatorListenerAdapter() {
@@ -261,6 +263,9 @@ public class GuideOverlay extends FrameLayout {
         if (parent != null) {
             parent.removeView(this);
         }
+        if (endListener != null) {
+            endListener.onGuideEnd();
+        }
     }
 
     private boolean prepare() {
@@ -268,9 +273,9 @@ public class GuideOverlay extends FrameLayout {
             return false;
         }
         final int[] targetPosition = new int[2];
-        target.getLocationInWindow(targetPosition);
+        target.getLocationOnScreen(targetPosition);
         final int[] viewPosition = new int[2];
-        getLocationInWindow(viewPosition);
+        getLocationOnScreen(viewPosition);
         final float left = targetPosition[0] - viewPosition[0];
         final float top = targetPosition[1] - viewPosition[1];
         final int width = target.getWidth();
@@ -300,16 +305,6 @@ public class GuideOverlay extends FrameLayout {
         final float halfWidth = base.width() / 2f * scale;
         final float halfHeight = base.height() / 2f * scale;
         out.set(centreX - halfWidth, centreY - halfHeight, centreX + halfWidth, centreY + halfHeight);
-    }
-
-    private boolean isInsideFocal(float x, float y) {
-        return focalBounds.contains(x, y);
-    }
-
-    private void clickTarget() {
-        if (target != null && target.isEnabled() && target.isClickable()) {
-            target.performClick();
-        }
     }
 
     @Override
@@ -407,20 +402,9 @@ public class GuideOverlay extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                focalPressed = isInsideFocal(event.getX(), event.getY());
-                return true;
-            case MotionEvent.ACTION_UP:
-                if (focalPressed && isInsideFocal(event.getX(), event.getY())) {
-                    finish();
-                    clickTarget();
-                } else if (!focalPressed) {
-                    dismiss();
-                }
-                return true;
-            default:
-                return true;
+        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+            finish();
         }
+        return true;
     }
 }

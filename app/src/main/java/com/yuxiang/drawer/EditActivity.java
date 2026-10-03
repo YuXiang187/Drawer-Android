@@ -54,6 +54,9 @@ public class EditActivity extends AppCompatActivity {
 
     SharedPreferences initPoolPreferences;
     SharedPreferences poolPreferences;
+    SharedPreferences settingsPreferences;
+
+    GuideSequence activeGuide;
 
     int findIndex = -1;
 
@@ -71,6 +74,7 @@ public class EditActivity extends AppCompatActivity {
 
         initPoolPreferences = getSharedPreferences("init", MODE_PRIVATE);
         poolPreferences = getSharedPreferences("pool", MODE_PRIVATE);
+        settingsPreferences = getSharedPreferences("settings", MODE_PRIVATE);
 
         MaterialToolbar toolbar = findViewById(R.id.edit_topAppBar);
         setSupportActionBar(toolbar);
@@ -230,6 +234,11 @@ public class EditActivity extends AppCompatActivity {
         });
 
         editText.setText(initPoolPreferences.getString("init", StringPool.DEFAULT_INIT));
+
+        if (!settingsPreferences.getBoolean("guide_edit_shown", false)) {
+            settingsPreferences.edit().putBoolean("guide_edit_shown", true).apply();
+            showWelcomeGuide();
+        }
     }
 
     private void refreshList() {
@@ -349,12 +358,28 @@ public class EditActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showHelpDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.help_title)
-                .setMessage(R.string.help_text)
-                .setNegativeButton(R.string.ok, null)
-                .show();
+    private void showWelcomeGuide() {
+        if (activeGuide != null && activeGuide.isRunning()) {
+            return;
+        }
+        activeGuide = new GuideSequence(this)
+                .add(R.id.bottom_import_btn, R.string.guide_import_title, R.string.guide_import_text)
+                .add(R.id.bottom_password_btn, R.string.guide_password_title, R.string.guide_password_text)
+                .add(R.id.menu_save, R.string.guide_save_title, R.string.guide_save_text);
+        activeGuide.start();
+    }
+
+    private void showHelpGuide() {
+        if (activeGuide != null && activeGuide.isRunning()) {
+            return;
+        }
+        activeGuide = new GuideSequence(this)
+                .add(R.id.bottom_import_btn, R.string.guide_import_title, R.string.guide_import_text)
+                .add(R.id.bottom_password_btn, R.string.guide_password_title, R.string.guide_password_text)
+                .add(R.id.edit_text_area, R.string.guide_edit_area_title, R.string.guide_edit_area_text)
+                .add(R.id.bottom_button_bar, R.string.guide_function_buttons_title, R.string.guide_function_buttons_text)
+                .add(R.id.menu_save, R.string.guide_save_title, R.string.guide_save_text);
+        activeGuide.start();
     }
 
     private void showBackDialog() {
@@ -416,7 +441,7 @@ public class EditActivity extends AppCompatActivity {
             apply();
             return true;
         } else if (id == R.id.menu_help) {
-            showHelpDialog();
+            showHelpGuide();
             return true;
         }
         return super.onOptionsItemSelected(item);

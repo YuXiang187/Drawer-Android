@@ -122,6 +122,7 @@
         android:background="?attr/colorOutlineVariant" />
 
     <LinearLayout
+        android:id="@+id/bottom_button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurfaceContainer"

@@ -2,15 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_theme"
-        android:icon="@drawable/ic_color"
-        android:title="@string/menu_theme"
+        android:id="@+id/menu_guide"
+        android:icon="@drawable/ic_help"
+        android:title="@string/action_help"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_close"
         android:icon="@drawable/ic_close"
         android:title="@string/menu_close"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_theme"
+        android:title="@string/menu_theme"
+        app:showAsAction="never" />
     <item
         android:id="@+id/menu_about"
         android:title="@string/menu_about"

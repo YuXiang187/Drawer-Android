@@ -76,6 +76,7 @@
             <View style="@style/Widget.Drawer.ListDivider" />
 
             <LinearLayout
+                android:id="@+id/background_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"

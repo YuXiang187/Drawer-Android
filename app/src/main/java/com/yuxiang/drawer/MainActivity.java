@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     ImageButton backgroundInfoButton;
 
     private PopupWindow richTooltip;
+    private GuideSequence activeGuide;
+    private GuideOverlay floatButtonGuide;
 
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
             (preferences, key) -> {
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         if (Settings.canDrawOverlays(this)) {
                             Toast.makeText(this, getString(R.string.text_get_permission), Toast.LENGTH_SHORT).show();
                             floatView.showFloatButton();
+                            maybeShowFloatButtonGuide();
                             FloatService.sync(this);
                         } else {
                             Toast.makeText(this, getString(R.string.text_no_permission), Toast.LENGTH_SHORT).show();
@@ -166,9 +170,11 @@ public class MainActivity extends AppCompatActivity {
                         overlayPermissionLauncher.launch(intent);
                     } else {
                         floatView.showFloatButton();
+                        maybeShowFloatButtonGuide();
                     }
                 } else {
                     floatView.showFloatButton();
+                    maybeShowFloatButtonGuide();
                 }
             } else {
                 floatView.hideFloatButton();
@@ -254,12 +260,9 @@ public class MainActivity extends AppCompatActivity {
 
         FloatService.sync(this);
 
-        if (!settingsPreferences.getBoolean("guide_shown", false)) {
-            settingsPreferences.edit().putBoolean("guide_shown", true).apply();
-            new GuideOverlay(this).show(drawButton, getString(R.string.guide_draw_title),
-                    getString(R.string.guide_draw_text));
-            new GuideOverlay(this).show(bootSwitch, getString(R.string.guide_draw_title),
-                    getString(R.string.guide_draw_text));
+        if (!settingsPreferences.getBoolean("guide_main_shown", false)) {
+            settingsPreferences.edit().putBoolean("guide_main_shown", true).apply();
+            showWelcomeGuide();
         }
 
         Intent isBack = getIntent();
@@ -274,6 +277,16 @@ public class MainActivity extends AppCompatActivity {
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
         FloatService.sync(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (floatButtonGuide != null) {
+            floatButtonGuide.finish();
+            floatButtonGuide = null;
+        }
+        floatView.setTouchable(true);
     }
 
     @Override
@@ -395,6 +408,62 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showWelcomeGuide() {
+        if (activeGuide != null && activeGuide.isRunning()) {
+            return;
+        }
+        activeGuide = new GuideSequence(this)
+                .add(R.id.edit_btn, R.string.guide_welcome_title, R.string.guide_edit_text)
+                .add(R.id.menu_guide, R.string.guide_help_entry_title, R.string.guide_help_entry_text);
+        activeGuide.start();
+    }
+
+    private void maybeShowFloatButtonGuide() {
+        if (settingsPreferences.getBoolean("guide_drag_shown", false) || !floatView.isFloatButtonShown()) {
+            return;
+        }
+        final View button = floatView.getFloatButtonView();
+        button.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                final View view = floatView.getFloatButtonView();
+                if (view.getWidth() == 0 || view.getHeight() == 0) {
+                    return;
+                }
+                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (!isFinishing() && !isDestroyed()) {
+                    showFloatButtonGuide(view);
+                }
+            }
+        });
+    }
+
+    private void showFloatButtonGuide(View button) {
+        if (settingsPreferences.getBoolean("guide_drag_shown", false)) {
+            return;
+        }
+        settingsPreferences.edit().putBoolean("guide_drag_shown", true).apply();
+        floatView.hideFloatText();
+        floatView.setTouchable(false);
+        floatButtonGuide = new GuideOverlay(this);
+        floatButtonGuide.setOnEndListener(() -> floatView.setTouchable(true));
+        floatButtonGuide.show(button, null, getString(R.string.guide_drag_text));
+    }
+
+    private void showHelpGuide() {
+        if (activeGuide != null && activeGuide.isRunning()) {
+            return;
+        }
+        activeGuide = new GuideSequence(this)
+                .add(R.id.edit_btn, R.string.guide_edit_title, R.string.guide_edit_text)
+                .add(R.id.float_switch, R.string.guide_float_title, R.string.guide_float_text)
+                .add(R.id.start_on_boot_switch, R.string.guide_boot_title, R.string.guide_boot_text)
+                .add(R.id.background_row, R.string.guide_background_title, R.string.guide_background_text)
+                .add(R.id.background_info_button, R.string.guide_background_info_text)
+                .add(R.id.reset_location_button, R.string.guide_reset_location_text);
+        activeGuide.start();
+    }
+
     private void hideFloatButton() {
         settingsPreferences.edit().putBoolean("float_state", false).apply();
         floatView.hideFloatButton();
@@ -448,6 +517,8 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         } else if (id == R.id.menu_close) {
             moveTaskToBack(true);
+        } else if (id == R.id.menu_guide) {
+            showHelpGuide();
         } else if (id == R.id.menu_exit) {
             hideFloatButton();
             FloatService.stopNow(this);
