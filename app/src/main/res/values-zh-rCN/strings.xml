@@ -100,7 +100,7 @@
     <string name="guide_background_info_text">点击这里查看悬浮按钮显示方式</string>
     <string name="guide_reset_location_text">点击这里可以重置悬浮按钮的位置</string>
     <string name="guide_import_text">点击这里可以导入TXT文件</string>
-    <string name="guide_password_text">点击此处修改进入编辑页面的密码</string>
+    <string name="guide_password_text">点击这里修改进入编辑页面的密码</string>
     <string name="guide_edit_area_title">编辑区域</string>
     <string name="guide_edit_area_text">各个名称以英文逗号分割，例如“名称1,名称2,名称3,…”</string>
     <string name="guide_function_buttons_title">功能按钮</string>
