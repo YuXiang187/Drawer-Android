@@ -93,4 +93,6 @@
     <string name="text_accessibility_permission">Accessibility service on</string>
     <string name="text_no_accessibility_permission">Accessibility service off</string>
     <string name="text_boot_external_storage">Start on boot is not available while the app is installed on an SD card.</string>
+    <string name="guide_draw_title">Draw a name</string>
+    <string name="guide_draw_text">Tap here to pick a name from the list at random.</string>
 </resources>

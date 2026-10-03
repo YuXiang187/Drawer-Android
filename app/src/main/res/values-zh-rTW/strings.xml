@@ -91,4 +91,6 @@
     <string name="text_accessibility_permission">無障礙服務開啟</string>
     <string name="text_no_accessibility_permission">無障礙服務關閉</string>
     <string name="text_boot_external_storage">安裝到 SD 卡時開機自動啟動無法使用。</string>
+    <string name="guide_draw_title">抽取名稱</string>
+    <string name="guide_draw_text">點按此處，即可從名單中隨機抽取一個名稱。</string>
 </resources>

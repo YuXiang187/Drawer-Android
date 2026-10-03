@@ -254,6 +254,14 @@ public class MainActivity extends AppCompatActivity {
 
         FloatService.sync(this);
 
+        if (!settingsPreferences.getBoolean("guide_shown", false)) {
+            settingsPreferences.edit().putBoolean("guide_shown", true).apply();
+            new GuideOverlay(this).show(drawButton, getString(R.string.guide_draw_title),
+                    getString(R.string.guide_draw_text));
+            new GuideOverlay(this).show(bootSwitch, getString(R.string.guide_draw_title),
+                    getString(R.string.guide_draw_text));
+        }
+
         Intent isBack = getIntent();
         if (isBack.getBooleanExtra("is_back", false)) {
             moveTaskToBack(true);

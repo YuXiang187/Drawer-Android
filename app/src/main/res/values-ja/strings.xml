@@ -91,4 +91,6 @@
     <string name="text_accessibility_permission">ユーザー補助サービス：オン</string>
     <string name="text_no_accessibility_permission">ユーザー補助サービス：オフ</string>
     <string name="text_boot_external_storage">SD カードにインストールすると、起動時の自動起動は使用できません。</string>
+    <string name="guide_draw_title">名前を抽選</string>
+    <string name="guide_draw_text">ここをタップすると、リストから名前をランダムに抽選します。</string>
 </resources>
