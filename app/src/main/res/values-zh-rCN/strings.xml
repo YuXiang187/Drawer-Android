@@ -61,7 +61,7 @@
     <string name="action_find">查找</string>
     <string name="action_clear">清空</string>
     <string name="action_help">帮助</string>
-    <string name="action_apply">应用</string>
+    <string name="action_save">保存</string>
     <string name="edit_add_hint">添加名称，回车确认</string>
     <string name="content_desc_add">添加</string>
     <string name="content_desc_remove">删除选中</string>
@@ -94,23 +94,17 @@
     <string name="guide_edit_text">点击这里编辑名单，初始密码为“123456”</string>
     <string name="guide_help_entry_title">功能指引</string>
     <string name="guide_help_entry_text">点击右上角的 ? 可显示功能指引</string>
-    <string name="guide_float_title">悬浮按钮</string>
     <string name="guide_float_text">点击这里启用悬浮按钮</string>
-    <string name="guide_boot_title">开机自启</string>
     <string name="guide_boot_text">点击这里让悬浮按钮在开机后显示</string>
-    <string name="guide_background_title">后台运行</string>
     <string name="guide_background_text">点击这里让悬浮按钮在任何地方显示</string>
     <string name="guide_background_info_text">点击这里查看悬浮按钮显示方式</string>
     <string name="guide_reset_location_text">点击这里可以重置悬浮按钮的位置</string>
-    <string name="guide_import_title">导入</string>
     <string name="guide_import_text">点击这里可以导入TXT文件</string>
-    <string name="guide_password_title">密码</string>
     <string name="guide_password_text">点击此处修改进入编辑页面的密码</string>
     <string name="guide_edit_area_title">编辑区域</string>
     <string name="guide_edit_area_text">各个名称以英文逗号分割，例如“名称1,名称2,名称3,…”</string>
     <string name="guide_function_buttons_title">功能按钮</string>
     <string name="guide_function_buttons_text">长按这些功能按钮可以弹出气泡提示</string>
-    <string name="guide_save_title">保存</string>
     <string name="guide_save_text">点击这里保存名单</string>
     <string name="guide_drag_text">上方的空白区域可拖动悬浮按钮</string>
 </resources>

@@ -363,9 +363,9 @@ public class EditActivity extends AppCompatActivity {
             return;
         }
         activeGuide = new GuideSequence(this)
-                .add(R.id.bottom_import_btn, R.string.guide_import_title, R.string.guide_import_text)
-                .add(R.id.bottom_password_btn, R.string.guide_password_title, R.string.guide_password_text)
-                .add(R.id.menu_save, R.string.guide_save_title, R.string.guide_save_text);
+                .add(R.id.bottom_import_btn, R.string.action_import, R.string.guide_import_text)
+                .add(R.id.bottom_password_btn, R.string.password, R.string.guide_password_text)
+                .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text);
         activeGuide.start();
     }
 
@@ -374,11 +374,11 @@ public class EditActivity extends AppCompatActivity {
             return;
         }
         activeGuide = new GuideSequence(this)
-                .add(R.id.bottom_import_btn, R.string.guide_import_title, R.string.guide_import_text)
-                .add(R.id.bottom_password_btn, R.string.guide_password_title, R.string.guide_password_text)
+                .add(R.id.bottom_import_btn, R.string.action_import, R.string.guide_import_text)
+                .add(R.id.bottom_password_btn, R.string.password, R.string.guide_password_text)
                 .add(R.id.edit_text_area, R.string.guide_edit_area_title, R.string.guide_edit_area_text)
                 .add(R.id.bottom_button_bar, R.string.guide_function_buttons_title, R.string.guide_function_buttons_text)
-                .add(R.id.menu_save, R.string.guide_save_title, R.string.guide_save_text);
+                .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text);
         activeGuide.start();
     }
 

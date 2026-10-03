@@ -456,9 +456,9 @@ public class MainActivity extends AppCompatActivity {
         }
         activeGuide = new GuideSequence(this)
                 .add(R.id.edit_btn, R.string.guide_edit_title, R.string.guide_edit_text)
-                .add(R.id.float_switch, R.string.guide_float_title, R.string.guide_float_text)
-                .add(R.id.start_on_boot_switch, R.string.guide_boot_title, R.string.guide_boot_text)
-                .add(R.id.background_row, R.string.guide_background_title, R.string.guide_background_text)
+                .add(R.id.float_switch, R.string.settings_float_button, R.string.guide_float_text)
+                .add(R.id.start_on_boot_switch, R.string.settings_start_on_boot, R.string.guide_boot_text)
+                .add(R.id.background_row, R.string.settings_background, R.string.guide_background_text)
                 .add(R.id.background_info_button, R.string.guide_background_info_text)
                 .add(R.id.reset_location_button, R.string.guide_reset_location_text);
         activeGuide.start();

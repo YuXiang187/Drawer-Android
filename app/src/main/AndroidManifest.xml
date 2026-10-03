@@ -55,7 +55,7 @@
             android:stopWithTask="false">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Keeps the optional floating button overlay available while the app is not in the foreground" />
+                android:value="Keeps the optional Float button overlay available while the app is not in the foreground" />
         </service>
 
         <service
