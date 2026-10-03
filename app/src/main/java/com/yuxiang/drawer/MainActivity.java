@@ -426,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void maybeShowFloatButtonGuide() {
         if (floatButtonGuide != null || settingsPreferences.getBoolean("guide_drag_shown", false)
+                || !settingsPreferences.getBoolean("guide_main_shown", false)
                 || !floatView.isFloatButtonShown()) {
             return;
         }
