@@ -18,6 +18,7 @@
     <string name="theme_white">ホワイトモード</string>
     <string name="theme_black">ダークモード</string>
     <string name="cancel">キャンセル</string>
+    <string name="dialog_group_text">抽選グループ：%s</string>
     <string name="dialog_number_text">抽選数：%d</string>
     <string name="dialog_name_text">抽選リスト：%s</string>
     <string name="menu_run">実行</string>
@@ -107,6 +108,7 @@
     <string name="guide_function_buttons_text">これらのボタンを長押しするとツールチップが表示されます。</string>
     <string name="guide_save_text">ここをタップするとリストを保存できます。</string>
     <string name="guide_drag_text">上の空白部分をドラッグするとフローティングボタンを移動できます。</string>
+    <string name="guide_group_text">ここでグループの切り替え、追加、名前の変更、削除ができます。各グループは独立したリストを持ちます。</string>
     <string name="group_label">グループ</string>
     <string name="group_default">デフォルト</string>
     <string name="group_add">グループを追加</string>
@@ -120,10 +122,7 @@
     <string name="group_delete_title">グループを削除</string>
     <string name="group_delete_text">グループ「%s」とそのリストを削除しますか？</string>
     <string name="group_last_cannot_delete">グループは最低1つ必要です</string>
-    <string name="guide_group_title">グループ</string>
-    <string name="guide_group_text">ここでグループの切り替え、追加、名前の変更、削除ができます。各グループは独立したリストを持ちます。</string>
-    <string name="dialog_group_text">グループ：%s</string>
     <string name="group_switch_title">未保存の変更</string>
     <string name="group_switch_text">グループ「%s」のリストは未保存です。続けると変更は破棄されます。</string>
-    <string name="group_created_hint">グループを作成しました。保存すると有効になります。</string>
+    <string name="group_created_hint">グループを作成しました</string>
 </resources>

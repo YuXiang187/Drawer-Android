@@ -20,8 +20,9 @@
     <string name="theme_white">White mode</string>
     <string name="theme_black">Dark mode</string>
     <string name="cancel">Cancel</string>
+    <string name="dialog_group_text">Group: %s</string>
     <string name="dialog_number_text">Number of draws: %d</string>
-    <string name="dialog_name_text">Names: %s</string>
+    <string name="dialog_name_text">List: %s</string>
     <string name="menu_run">Run</string>
     <string name="menu_draw">Draw</string>
     <string name="ok">OK</string>
@@ -109,6 +110,7 @@
     <string name="guide_function_buttons_text">Long press these buttons to show a tooltip.</string>
     <string name="guide_save_text">Tap here to save the list.</string>
     <string name="guide_drag_text">Drag the blank area above to move the Float button.</string>
+    <string name="guide_group_text">Switch, add, rename, or delete groups here. Each group keeps its own list.</string>
     <string name="group_label">Group</string>
     <string name="group_default">Default</string>
     <string name="group_add">New group</string>
@@ -122,10 +124,7 @@
     <string name="group_delete_title">Delete group</string>
     <string name="group_delete_text">Delete the group \"%s\" and its list?</string>
     <string name="group_last_cannot_delete">At least one group must be kept</string>
-    <string name="guide_group_title">Groups</string>
-    <string name="guide_group_text">Switch, add, rename, or delete groups here. Each group keeps its own list.</string>
-    <string name="dialog_group_text">Group: %s</string>
     <string name="group_switch_title">Unsaved changes</string>
     <string name="group_switch_text">The list of group \"%s\" has unsaved changes. If you continue, these changes will be discarded.</string>
-    <string name="group_created_hint">The group has been created. It will take effect after saving.</string>
+    <string name="group_created_hint">The group has been created</string>
 </resources>

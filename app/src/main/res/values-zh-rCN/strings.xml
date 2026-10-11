@@ -18,6 +18,7 @@
     <string name="theme_white">白色模式</string>
     <string name="theme_black">暗黑模式</string>
     <string name="cancel">取消</string>
+    <string name="dialog_group_text">抽取分组：%s</string>
     <string name="dialog_number_text">抽取数量：%d</string>
     <string name="dialog_name_text">抽取名单：%s</string>
     <string name="menu_run">运行</string>
@@ -107,6 +108,7 @@
     <string name="guide_function_buttons_text">长按这些功能按钮可以弹出气泡提示</string>
     <string name="guide_save_text">点击这里保存名单</string>
     <string name="guide_drag_text">拖动上方的空白区域可移动悬浮按钮</string>
+    <string name="guide_group_text">在这里可切换、新增、重命名或删除分组，每个分组拥有独立名单。</string>
     <string name="group_label">分组</string>
     <string name="group_default">默认分组</string>
     <string name="group_add">新增分组</string>
@@ -120,10 +122,7 @@
     <string name="group_delete_title">删除分组</string>
     <string name="group_delete_text">确定要删除分组“%s”及其名单吗？</string>
     <string name="group_last_cannot_delete">至少需要保留一个分组</string>
-    <string name="guide_group_title">分组</string>
-    <string name="guide_group_text">在这里可切换、新增、重命名或删除分组，每个分组拥有独立名单。</string>
-    <string name="dialog_group_text">分组：%s</string>
     <string name="group_switch_title">未保存的更改</string>
     <string name="group_switch_text">分组“%s”的名单尚未保存，继续操作将丢弃这些更改。</string>
-    <string name="group_created_hint">分组已创建，保存后生效</string>
+    <string name="group_created_hint">分组已创建</string>
 </resources>

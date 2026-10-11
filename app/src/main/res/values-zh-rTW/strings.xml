@@ -18,6 +18,7 @@
     <string name="theme_white">淺色模式</string>
     <string name="theme_black">深色模式</string>
     <string name="cancel">取消</string>
+    <string name="dialog_group_text">抽取分組：%s</string>
     <string name="dialog_number_text">抽取數量：%d</string>
     <string name="dialog_name_text">抽取名單：%s</string>
     <string name="menu_run">運行</string>
@@ -107,6 +108,7 @@
     <string name="guide_function_buttons_text">長按這些功能按鈕可以彈出氣泡提示</string>
     <string name="guide_save_text">點擊這裡儲存名單</string>
     <string name="guide_drag_text">上方的空白區域可拖動懸浮按鈕</string>
+    <string name="guide_group_text">在這裡可切換、新增、重新命名或刪除分組，每個分組擁有獨立名單。</string>
     <string name="group_label">分組</string>
     <string name="group_default">預設分組</string>
     <string name="group_add">新增分組</string>
@@ -120,10 +122,7 @@
     <string name="group_delete_title">刪除分組</string>
     <string name="group_delete_text">確定要刪除分組「%s」及其名單嗎？</string>
     <string name="group_last_cannot_delete">至少需要保留一個分組</string>
-    <string name="guide_group_title">分組</string>
-    <string name="guide_group_text">在這裡可切換、新增、重新命名或刪除分組，每個分組擁有獨立名單。</string>
-    <string name="dialog_group_text">分組：%s</string>
     <string name="group_switch_title">未儲存的變更</string>
     <string name="group_switch_text">分組「%s」的名單尚未儲存，繼續操作將捨棄這些變更。</string>
-    <string name="group_created_hint">分組已建立，儲存後生效</string>
+    <string name="group_created_hint">分組已建立</string>
 </resources>
