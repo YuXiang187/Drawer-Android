@@ -20,7 +20,7 @@
     <string name="cancel">キャンセル</string>
     <string name="dialog_number_text">抽選数：%d</string>
     <string name="dialog_name_text">抽選リスト：%s</string>
-    <string name="menu_run">実行する</string>
+    <string name="menu_run">実行</string>
     <string name="menu_draw">抽選</string>
     <string name="ok">OK</string>
     <string name="dialog_enter_password">パスワード入力</string>
@@ -28,17 +28,17 @@
     <string name="dialog_change_password">パスワード変更</string>
     <string name="password">パスワード</string>
     <string name="password_incorrect">パスワード誤り</string>
-    <string name="password_limit">制限：%d/20</string>
+    <string name="password_limit">上限：%d/20</string>
     <string name="password_changed">パスワードを変更しました</string>
     <string name="menu_close">閉じる</string>
     <string name="back">戻る</string>
-    <string name="text_is_discard">すべての内容を破棄してもよろしいですか？</string>
+    <string name="text_is_discard">グループ「%s」のリストは未保存です。変更を破棄しますか？</string>
     <string name="lists_saved">リストが保存されました</string>
-    <string name="about_message_1">名称ランダム抽出プログラム。</string>
+    <string name="about_message_1">名前ランダム抽選プログラム。</string>
     <string name="about_message_2">「編集」機能の初期パスワードは123456です。</string>
     <string name="about_message_3">フローティングボタンの上の空白部分をドラッグしてフローティングボタンを移動できます。</string>
     <string name="text_is_null">内容は空にできません</string>
-    <string name="lists_edit_tip">英語のカンマ（,）で区切ってください</string>
+    <string name="lists_edit_tip">半角カンマ（,）で区切ってください</string>
     <string name="dialog_password_warning_title">パスワードを変更してください</string>
     <string name="dialog_password_warning_text">現在、初期パスワードを使用しています。リストの内容が悪意を持って改ざんされるのを防ぐため、編集ページ下部のツールバーにある「パスワード」ボタンをクリックして、速やかにパスワードを変更してください。</string>
     <string name="settings_location_switch">場所を記憶する</string>
@@ -55,7 +55,7 @@
     <string name="tooltip_float_mode_accessibility_text">フローティングボタンはユーザー補助サービスで動作し、システムの制限された画面にも表示できます</string>
     <string name="tooltip_accessibility_running_title">ユーザー補助サービスは実行中です</string>
     <string name="tooltip_accessibility_running_text">システム設定から無効にできます</string>
-    <string name="tooltip_accessibility_running_action">移動</string>
+    <string name="tooltip_accessibility_running_action">開く</string>
     <string name="action_import">インポート</string>
     <string name="action_export">エクスポート</string>
     <string name="action_find">検索</string>
@@ -69,7 +69,7 @@
     <string name="text_selected">選択：%d</string>
     <string name="find_hint">検索する名前を入力</string>
     <string name="find_done">見つかりません</string>
-    <string name="no_comma">英語のカンマ「,」を含めないでください</string>
+    <string name="no_comma">半角カンマ「,」を含めないでください</string>
     <string name="clear_confirm">すべての内容をクリアしますか？</string>
     <string name="password_empty">パスワードは空にできません</string>
     <string name="import_confirm_title">インポート確認</string>
@@ -124,5 +124,6 @@
     <string name="guide_group_text">ここでグループの切り替え、追加、名前の変更、削除ができます。各グループは独立したリストを持ちます。</string>
     <string name="dialog_group_text">グループ：%s</string>
     <string name="group_switch_title">未保存の変更</string>
-    <string name="group_switch_text">現在のリストは未保存です。グループを切り替えると変更は破棄されます。</string>
+    <string name="group_switch_text">グループ「%s」のリストは未保存です。続けると変更は破棄されます。</string>
+    <string name="group_created_hint">グループを作成しました。保存すると有効になります。</string>
 </resources>

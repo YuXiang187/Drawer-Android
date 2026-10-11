@@ -34,13 +34,13 @@
     <string name="password_changed">Password has been changed</string>
     <string name="menu_close">Close</string>
     <string name="back">Back</string>
-    <string name="text_is_discard">Are you sure you want to discard all content?</string>
+    <string name="text_is_discard">The list of group \"%s\" has unsaved changes. Discard them?</string>
     <string name="lists_saved">List has been saved</string>
     <string name="about_message_1">Random name selection program.</string>
     <string name="about_message_2">The initial password for the \"Edit\" function is 123456.</string>
     <string name="about_message_3">Drag the blank area above the Float button to move the Float button.</string>
     <string name="text_is_null">Content cannot be empty</string>
-    <string name="lists_edit_tip">Separated by commas (,)</string>
+    <string name="lists_edit_tip">Separate names with commas (,)</string>
     <string name="dialog_password_warning_title">Please change your password</string>
     <string name="dialog_password_warning_text">You are currently using the initial password. To prevent the list contents from being maliciously tampered with, please change the password by clicking the \"Password\" button in the toolbar at the bottom of the editing page as soon as possible.</string>
     <string name="settings_location_switch">Remember location</string>
@@ -71,7 +71,7 @@
     <string name="text_selected">Selected: %d</string>
     <string name="find_hint">Enter a name to find</string>
     <string name="find_done">Not found</string>
-    <string name="no_comma">Please do not include English commas ","</string>
+    <string name="no_comma">Please do not use commas (\",\")</string>
     <string name="clear_confirm">Clear all content?</string>
     <string name="password_empty">Password cannot be empty</string>
     <string name="import_confirm_title">Import confirmation</string>
@@ -104,7 +104,7 @@
     <string name="guide_import_text">Tap here to import a TXT file.</string>
     <string name="guide_password_text">Tap here to change the password for entering the edit page.</string>
     <string name="guide_edit_area_title">Edit area</string>
-    <string name="guide_edit_area_text">Separate each name with an English comma, for example \"Name1,Name2,Name3,…\"</string>
+    <string name="guide_edit_area_text">Separate each name with a comma, for example \"Name1,Name2,Name3,…\"</string>
     <string name="guide_function_buttons_title">Function buttons</string>
     <string name="guide_function_buttons_text">Long press these buttons to show a tooltip.</string>
     <string name="guide_save_text">Tap here to save the list.</string>
@@ -120,11 +120,12 @@
     <string name="group_name_empty">Group name cannot be empty</string>
     <string name="group_name_exists">A group with this name already exists</string>
     <string name="group_delete_title">Delete group</string>
-    <string name="group_delete_text">Delete the group "%s" and its list?</string>
+    <string name="group_delete_text">Delete the group \"%s\" and its list?</string>
     <string name="group_last_cannot_delete">At least one group must be kept</string>
     <string name="guide_group_title">Groups</string>
     <string name="guide_group_text">Switch, add, rename, or delete groups here. Each group keeps its own list.</string>
     <string name="dialog_group_text">Group: %s</string>
     <string name="group_switch_title">Unsaved changes</string>
-    <string name="group_switch_text">The current list has unsaved changes. Switching groups will discard them.</string>
+    <string name="group_switch_text">The list of group \"%s\" has unsaved changes. If you continue, these changes will be discarded.</string>
+    <string name="group_created_hint">The group has been created. It will take effect after saving.</string>
 </resources>

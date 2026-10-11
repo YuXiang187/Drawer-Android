@@ -3,6 +3,7 @@ package com.yuxiang.drawer;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -44,6 +45,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EditActivity extends AppCompatActivity {
+
+    private static final int MAX_GROUP_NAME_LENGTH = 30;
+    private static final String STATE_GROUP_ID = "state_group_id";
+    private static final String STATE_EDITOR_TEXT = "state_editor_text";
+    private static final String STATE_LOADED_CONTENT = "state_loaded_content";
 
     EditText editText;
     EditText addInput;
@@ -177,34 +183,22 @@ public class EditActivity extends AppCompatActivity {
             if (selected.equals(currentGroupId)) {
                 return;
             }
-            if (isListModified()) {
-                // the editor holds unsaved edits, ask before they are dropped
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.group_switch_title)
-                        .setMessage(R.string.group_switch_text)
-                        .setNegativeButton(R.string.cancel, (dialogInterface, i) -> refreshGroupDropdown())
-                        .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
-                            loadGroup(selected);
-                            refreshGroupDropdown();
-                        })
-                        .show();
-            } else {
-                loadGroup(selected);
-            }
+            withDiscardConfirmation(() -> loadGroup(selected));
         });
-        groupAddButton.setOnClickListener(v -> showGroupNameDialog(
+        groupAddButton.setOnClickListener(v -> withDiscardConfirmation(() -> showGroupNameDialog(
                 R.string.group_new_title, "", null,
                 name -> {
                     loadGroup(groupStore.addGroup(name));
                     refreshGroupDropdown();
-                }));
+                    Toast.makeText(this, R.string.group_created_hint, Toast.LENGTH_SHORT).show();
+                })));
         groupRenameButton.setOnClickListener(v -> showGroupNameDialog(
                 R.string.group_rename_title, groupStore.getGroupName(currentGroupId), currentGroupId,
                 name -> {
                     groupStore.renameGroup(currentGroupId, name);
                     refreshGroupDropdown();
                 }));
-        groupDeleteButton.setOnClickListener(v -> showDeleteGroupDialog());
+        groupDeleteButton.setOnClickListener(v -> withDiscardConfirmation(this::showDeleteGroupDialog));
         TooltipCompat.setTooltipText(groupAddButton, getString(R.string.group_add));
         TooltipCompat.setTooltipText(groupRenameButton, getString(R.string.group_rename));
         TooltipCompat.setTooltipText(groupDeleteButton, getString(R.string.group_delete));
@@ -292,9 +286,36 @@ public class EditActivity extends AppCompatActivity {
         refreshGroupDropdown();
         loadGroup(currentGroupId);
 
+        if (savedInstanceState != null) {
+            restoreEditorState(savedInstanceState);
+        }
+
         if (!settingsPreferences.getBoolean("guide_edit_shown", false)) {
             showWelcomeGuide();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // The editor state is not derived from the preferences, it has to survive a recreation
+        outState.putString(STATE_GROUP_ID, currentGroupId);
+        outState.putString(STATE_EDITOR_TEXT, editText.getText().toString());
+        outState.putString(STATE_LOADED_CONTENT, loadedContent);
+    }
+
+    // Restores the group and the unsaved edits after the Activity was recreated
+    private void restoreEditorState(@NonNull Bundle savedState) {
+        String groupId = savedState.getString(STATE_GROUP_ID);
+        if (groupId == null || groupId.isEmpty() || !groupStore.getGroupIds().contains(groupId)) {
+            return;
+        }
+        currentGroupId = groupId;
+        editText.setText(savedState.getString(STATE_EDITOR_TEXT, ""));
+        addInput.setText("");
+        refreshList();
+        loadedContent = savedState.getString(STATE_LOADED_CONTENT, editText.getText().toString());
+        refreshGroupDropdown();
     }
 
     private void refreshList() {
@@ -313,6 +334,10 @@ public class EditActivity extends AppCompatActivity {
 
     // Reloads the group list and keeps the edited group selected
     private void refreshGroupDropdown() {
+        // The edited group can disappear when it is removed, fall back to the active one
+        if (!groupStore.getGroupIds().contains(currentGroupId)) {
+            loadGroup(groupStore.getActiveGroupId());
+        }
         groupIds = new ArrayList<>(groupStore.getGroupIds());
         String[] names = new String[groupIds.size()];
         for (int i = 0; i < groupIds.size(); i++) {
@@ -343,6 +368,24 @@ public class EditActivity extends AppCompatActivity {
         return !editText.getText().toString().equals(loadedContent);
     }
 
+    // Runs the action when the editor holds no unsaved edits, otherwise asks first.
+    // The dropdown label has to be resynced on every dismissal: the Material dropdown
+    // already moved its text to the tapped item, while the edit itself may not happen.
+    private void withDiscardConfirmation(Runnable action) {
+        if (!isListModified()) {
+            action.run();
+            return;
+        }
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.group_switch_title)
+                .setMessage(getString(R.string.group_switch_text, groupStore.getGroupName(currentGroupId)))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.confirm, (dialogInterface, i) -> action.run())
+                .create();
+        dialog.setOnDismissListener(dialogInterface -> refreshGroupDropdown());
+        dialog.show();
+    }
+
     private void showDeleteGroupDialog() {
         if (groupStore.getGroupCount() <= 1) {
             Toast.makeText(this, R.string.group_last_cannot_delete, Toast.LENGTH_SHORT).show();
@@ -370,6 +413,7 @@ public class EditActivity extends AppCompatActivity {
         TextInputEditText input = new TextInputEditText(inputLayout.getContext());
         input.setSingleLine(true);
         input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_GROUP_NAME_LENGTH)});
         input.setText(initialName);
         input.setSelection(input.getText().length());
         inputLayout.addView(input);
@@ -541,9 +585,14 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void showBackDialog() {
+        if (!isListModified()) {
+            // nothing was edited, there is nothing to discard
+            finish();
+            return;
+        }
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.back)
-                .setMessage(R.string.text_is_discard)
+                .setMessage(getString(R.string.text_is_discard, groupStore.getGroupName(currentGroupId)))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.confirm, (dialogInterface, i) -> finish())
                 .show();
@@ -571,7 +620,9 @@ public class EditActivity extends AppCompatActivity {
         if (result.length() > 0) {
             result.setLength(result.length() - 2);
         }
-        String message = getString(R.string.dialog_number_text, cleanList.size()) + "\n" + getString(R.string.dialog_name_text, result);
+        String message = getString(R.string.dialog_group_text, groupStore.getGroupName(currentGroupId)) + "\n"
+                + getString(R.string.dialog_number_text, cleanList.size()) + "\n"
+                + getString(R.string.dialog_name_text, result);
         ScrollView scrollView = new ScrollView(this);
         scrollView.setPadding(64, 16, 64, 0);
         TextView textView = new TextView(this);

@@ -57,7 +57,7 @@ public class GroupStore {
                 .putString(PREFIX_NAME + id, context.getString(R.string.group_default))
                 .putString(PREFIX_INIT + id, String.join(",", init))
                 .putString(PREFIX_POOL + id, String.join(",", pool))
-                .apply();
+                .commit();
     }
 
     // The ids in display order
@@ -159,10 +159,11 @@ public class GroupStore {
         return true;
     }
 
-    // The id of the group with this exact name, or null
+    // The id of the group with this name, compared without case and surrounding spaces, or null
     public String findGroupIdByName(String name) {
+        String wanted = name == null ? "" : name.trim();
         for (String id : getGroupIds()) {
-            if (getGroupName(id).equals(name)) {
+            if (getGroupName(id).trim().equalsIgnoreCase(wanted)) {
                 return id;
             }
         }

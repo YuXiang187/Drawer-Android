@@ -32,13 +32,13 @@
     <string name="password_changed">密码已更改</string>
     <string name="menu_close">关闭</string>
     <string name="back">返回</string>
-    <string name="text_is_discard">确认丢弃所有内容？</string>
+    <string name="text_is_discard">分组“%s”的名单尚未保存，确定要丢弃这些更改吗？</string>
     <string name="lists_saved">列表已保存</string>
     <string name="about_message_1">名称随机抽取程序。</string>
     <string name="about_message_2">“编辑”功能的初始密码为123456。</string>
-    <string name="about_message_3">拖动悬浮按钮上方的空白区域可拖动悬浮按钮。</string>
+    <string name="about_message_3">拖动悬浮按钮上方的空白区域即可移动悬浮按钮。</string>
     <string name="text_is_null">内容不能为空</string>
-    <string name="lists_edit_tip">使用英文逗号（,）分割</string>
+    <string name="lists_edit_tip">使用英文逗号（,）分隔</string>
     <string name="dialog_password_warning_title">请更改密码</string>
     <string name="dialog_password_warning_text">您正在使用初始密码，为确保名单内容不被恶意篡改，请及时在编辑页面下方的工具栏中单击“密码”按钮更改密码。</string>
     <string name="settings_location_switch">记住位置</string>
@@ -69,7 +69,7 @@
     <string name="text_selected">选中：%d</string>
     <string name="find_hint">输入要查找的名称</string>
     <string name="find_done">未找到</string>
-    <string name="no_comma">请不要包含英文逗号「,」</string>
+    <string name="no_comma">请不要包含英文逗号“,”</string>
     <string name="clear_confirm">是否清空内容？</string>
     <string name="password_empty">密码不能为空</string>
     <string name="import_confirm_title">导入确认</string>
@@ -102,11 +102,11 @@
     <string name="guide_import_text">点击这里可以导入TXT文件</string>
     <string name="guide_password_text">点击这里修改进入编辑页面的密码</string>
     <string name="guide_edit_area_title">编辑区域</string>
-    <string name="guide_edit_area_text">各个名称以英文逗号分割，例如“名称1,名称2,名称3,…”</string>
+    <string name="guide_edit_area_text">各个名称以英文逗号分隔，例如“名称1,名称2,名称3,…”</string>
     <string name="guide_function_buttons_title">功能按钮</string>
     <string name="guide_function_buttons_text">长按这些功能按钮可以弹出气泡提示</string>
     <string name="guide_save_text">点击这里保存名单</string>
-    <string name="guide_drag_text">上方的空白区域可拖动悬浮按钮</string>
+    <string name="guide_drag_text">拖动上方的空白区域可移动悬浮按钮</string>
     <string name="group_label">分组</string>
     <string name="group_default">默认分组</string>
     <string name="group_add">新增分组</string>
@@ -124,5 +124,6 @@
     <string name="guide_group_text">在这里可切换、新增、重命名或删除分组，每个分组拥有独立名单。</string>
     <string name="dialog_group_text">分组：%s</string>
     <string name="group_switch_title">未保存的更改</string>
-    <string name="group_switch_text">当前名单尚未保存，切换分组将丢弃这些更改。</string>
+    <string name="group_switch_text">分组“%s”的名单尚未保存，继续操作将丢弃这些更改。</string>
+    <string name="group_created_hint">分组已创建，保存后生效</string>
 </resources>
