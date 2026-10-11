@@ -107,4 +107,22 @@
     <string name="guide_function_buttons_text">長按這些功能按鈕可以彈出氣泡提示</string>
     <string name="guide_save_text">點擊這裡儲存名單</string>
     <string name="guide_drag_text">上方的空白區域可拖動懸浮按鈕</string>
+    <string name="group_label">分組</string>
+    <string name="group_default">預設分組</string>
+    <string name="group_add">新增分組</string>
+    <string name="group_rename">重新命名分組</string>
+    <string name="group_delete">刪除分組</string>
+    <string name="group_new_title">新增分組</string>
+    <string name="group_rename_title">重新命名分組</string>
+    <string name="group_name_hint">請輸入分組名稱</string>
+    <string name="group_name_empty">分組名稱不能為空</string>
+    <string name="group_name_exists">已存在同名分組</string>
+    <string name="group_delete_title">刪除分組</string>
+    <string name="group_delete_text">確定要刪除分組「%s」及其名單嗎？</string>
+    <string name="group_last_cannot_delete">至少需要保留一個分組</string>
+    <string name="guide_group_title">分組</string>
+    <string name="guide_group_text">在這裡可切換、新增、重新命名或刪除分組，每個分組擁有獨立名單。</string>
+    <string name="dialog_group_text">分組：%s</string>
+    <string name="group_switch_title">未儲存的變更</string>
+    <string name="group_switch_text">目前名單尚未儲存，切換分組將捨棄這些變更。</string>
 </resources>

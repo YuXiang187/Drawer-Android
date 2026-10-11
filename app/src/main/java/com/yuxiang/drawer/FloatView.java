@@ -412,11 +412,7 @@ public class FloatView {
     }
 
     public String draw() {
-        String result = stringPool.draw();
-        if (!result.isEmpty()) {
-            stringPool.save();
-        }
-        return result;
+        return stringPool.draw();
     }
 
     public void run() {

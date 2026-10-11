@@ -42,6 +42,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     SharedPreferences settingsPreferences;
@@ -60,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     Button statButton;
     ImageButton resetLocationButton;
     ImageButton backgroundInfoButton;
+    GroupStore groupStore;
+    MaterialAutoCompleteTextView groupDropdown;
+    List<String> groupIds = new ArrayList<>();
 
     private PopupWindow richTooltip;
     private GuideSequence activeGuide;
@@ -229,14 +236,18 @@ public class MainActivity extends AppCompatActivity {
 
         statButton = findViewById(R.id.stat_btn);
         statButton.setOnClickListener(view -> {
+            String groupId = groupStore.getActiveGroupId();
+            List<String> initPool = groupStore.getInit(groupId);
             StringBuilder result = new StringBuilder();
-            for (String item : StringPool.initPool) {
+            for (String item : initPool) {
                 result.append(item).append(", ");
             }
             if (result.length() > 0) {
                 result.setLength(result.length() - 2);
             }
-            String message = getString(R.string.dialog_number_text, StringPool.initPool.size()) + "\n" + getString(R.string.dialog_name_text, result);
+            String message = getString(R.string.dialog_group_text, groupStore.getGroupName(groupId)) + "\n"
+                    + getString(R.string.dialog_number_text, initPool.size()) + "\n"
+                    + getString(R.string.dialog_name_text, result);
             ScrollView scrollView = new ScrollView(this);
             scrollView.setPadding(64, 16, 64, 0);
             TextView textView = new TextView(this);
@@ -248,6 +259,16 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton(R.string.ok, null)
                     .show();
         });
+
+        groupStore = new GroupStore(this);
+        groupDropdown = findViewById(R.id.group_dropdown);
+        groupDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < 0 || position >= groupIds.size()) {
+                return;
+            }
+            groupStore.setActiveGroup(groupIds.get(position));
+        });
+        refreshGroupDropdown();
 
         drawButton = findViewById(R.id.draw_btn);
         drawButton.setOnClickListener(view -> onDrawClicked());
@@ -276,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
         backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+        refreshGroupDropdown();
         FloatService.sync(this);
     }
 
@@ -488,6 +510,20 @@ public class MainActivity extends AppCompatActivity {
         floatView.hideFloatText();
         // hand the windows back to the layer the app owns
         floatView.useRegularOverlay();
+    }
+
+    // Reloads the group list and keeps the active group selected
+    private void refreshGroupDropdown() {
+        groupIds = new ArrayList<>(groupStore.getGroupIds());
+        String[] names = new String[groupIds.size()];
+        for (int i = 0; i < groupIds.size(); i++) {
+            names[i] = groupStore.getGroupName(groupIds.get(i));
+        }
+        groupDropdown.setSimpleItems(names);
+        int index = groupIds.indexOf(groupStore.getActiveGroupId());
+        if (index >= 0) {
+            groupDropdown.setText(names[index], false);
+        }
     }
 
     private void onDrawClicked() {

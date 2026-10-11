@@ -107,4 +107,22 @@
     <string name="guide_function_buttons_text">これらのボタンを長押しするとツールチップが表示されます。</string>
     <string name="guide_save_text">ここをタップするとリストを保存できます。</string>
     <string name="guide_drag_text">上の空白部分をドラッグするとフローティングボタンを移動できます。</string>
+    <string name="group_label">グループ</string>
+    <string name="group_default">デフォルト</string>
+    <string name="group_add">グループを追加</string>
+    <string name="group_rename">グループ名を変更</string>
+    <string name="group_delete">グループを削除</string>
+    <string name="group_new_title">グループの新規作成</string>
+    <string name="group_rename_title">グループ名の変更</string>
+    <string name="group_name_hint">グループ名を入力</string>
+    <string name="group_name_empty">グループ名は空にできません</string>
+    <string name="group_name_exists">同じ名前のグループが既に存在します</string>
+    <string name="group_delete_title">グループを削除</string>
+    <string name="group_delete_text">グループ「%s」とそのリストを削除しますか？</string>
+    <string name="group_last_cannot_delete">グループは最低1つ必要です</string>
+    <string name="guide_group_title">グループ</string>
+    <string name="guide_group_text">ここでグループの切り替え、追加、名前の変更、削除ができます。各グループは独立したリストを持ちます。</string>
+    <string name="dialog_group_text">グループ：%s</string>
+    <string name="group_switch_title">未保存の変更</string>
+    <string name="group_switch_text">現在のリストは未保存です。グループを切り替えると変更は破棄されます。</string>
 </resources>

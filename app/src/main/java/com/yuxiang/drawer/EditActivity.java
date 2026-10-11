@@ -33,6 +33,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -52,9 +53,13 @@ public class EditActivity extends AppCompatActivity {
     ArrayAdapter<String> listAdapter;
     List<String> list = new ArrayList<>();
 
-    SharedPreferences initPoolPreferences;
-    SharedPreferences poolPreferences;
     SharedPreferences settingsPreferences;
+
+    GroupStore groupStore;
+    MaterialAutoCompleteTextView groupDropdown;
+    List<String> groupIds = new ArrayList<>();
+    String currentGroupId;
+    String loadedContent = "";
 
     GuideSequence activeGuide;
 
@@ -72,8 +77,6 @@ public class EditActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_edit);
 
-        initPoolPreferences = getSharedPreferences("init", MODE_PRIVATE);
-        poolPreferences = getSharedPreferences("pool", MODE_PRIVATE);
         settingsPreferences = getSharedPreferences("settings", MODE_PRIVATE);
 
         MaterialToolbar toolbar = findViewById(R.id.edit_topAppBar);
@@ -159,6 +162,53 @@ public class EditActivity extends AppCompatActivity {
         listAdapter = new ArrayAdapter<>(this, R.layout.item_edit_list, R.id.item_checkbox, list);
         listView.setAdapter(listAdapter);
 
+        // Group selector row
+        groupStore = new GroupStore(this);
+        groupDropdown = findViewById(R.id.edit_group_dropdown);
+        MaterialButton groupAddButton = findViewById(R.id.group_add_btn);
+        MaterialButton groupRenameButton = findViewById(R.id.group_rename_btn);
+        MaterialButton groupDeleteButton = findViewById(R.id.group_delete_btn);
+
+        groupDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < 0 || position >= groupIds.size()) {
+                return;
+            }
+            String selected = groupIds.get(position);
+            if (selected.equals(currentGroupId)) {
+                return;
+            }
+            if (isListModified()) {
+                // the editor holds unsaved edits, ask before they are dropped
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.group_switch_title)
+                        .setMessage(R.string.group_switch_text)
+                        .setNegativeButton(R.string.cancel, (dialogInterface, i) -> refreshGroupDropdown())
+                        .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
+                            loadGroup(selected);
+                            refreshGroupDropdown();
+                        })
+                        .show();
+            } else {
+                loadGroup(selected);
+            }
+        });
+        groupAddButton.setOnClickListener(v -> showGroupNameDialog(
+                R.string.group_new_title, "", null,
+                name -> {
+                    loadGroup(groupStore.addGroup(name));
+                    refreshGroupDropdown();
+                }));
+        groupRenameButton.setOnClickListener(v -> showGroupNameDialog(
+                R.string.group_rename_title, groupStore.getGroupName(currentGroupId), currentGroupId,
+                name -> {
+                    groupStore.renameGroup(currentGroupId, name);
+                    refreshGroupDropdown();
+                }));
+        groupDeleteButton.setOnClickListener(v -> showDeleteGroupDialog());
+        TooltipCompat.setTooltipText(groupAddButton, getString(R.string.group_add));
+        TooltipCompat.setTooltipText(groupRenameButton, getString(R.string.group_rename));
+        TooltipCompat.setTooltipText(groupDeleteButton, getString(R.string.group_delete));
+
         // Update the selected count when items are checked/unchecked
         listView.setOnItemClickListener((parent, view, position, id) -> {
             SparseBooleanArray checked = listView.getCheckedItemPositions();
@@ -238,7 +288,9 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        editText.setText(initPoolPreferences.getString("init", StringPool.DEFAULT_INIT));
+        currentGroupId = groupStore.getActiveGroupId();
+        refreshGroupDropdown();
+        loadGroup(currentGroupId);
 
         if (!settingsPreferences.getBoolean("guide_edit_shown", false)) {
             showWelcomeGuide();
@@ -257,6 +309,105 @@ public class EditActivity extends AppCompatActivity {
         findIndex = -1;
         totalText.setText(getString(R.string.text_total, list.size()));
         selectedText.setText(getString(R.string.text_selected, 0));
+    }
+
+    // Reloads the group list and keeps the edited group selected
+    private void refreshGroupDropdown() {
+        groupIds = new ArrayList<>(groupStore.getGroupIds());
+        String[] names = new String[groupIds.size()];
+        for (int i = 0; i < groupIds.size(); i++) {
+            names[i] = groupStore.getGroupName(groupIds.get(i));
+        }
+        groupDropdown.setSimpleItems(names);
+        int index = groupIds.indexOf(currentGroupId);
+        if (index >= 0) {
+            groupDropdown.setText(names[index], false);
+        }
+    }
+
+    // Loads a group's list into the editor
+    private void loadGroup(String groupId) {
+        if (groupId == null || groupId.isEmpty()) {
+            return;
+        }
+        currentGroupId = groupId;
+        editText.setText(String.join(",", groupStore.getInit(groupId)));
+        addInput.setText("");
+        refreshList();
+        // remember the loaded content so later edits can be detected
+        loadedContent = editText.getText().toString();
+    }
+
+    // True when the editor differs from the content that was loaded
+    private boolean isListModified() {
+        return !editText.getText().toString().equals(loadedContent);
+    }
+
+    private void showDeleteGroupDialog() {
+        if (groupStore.getGroupCount() <= 1) {
+            Toast.makeText(this, R.string.group_last_cannot_delete, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String name = groupStore.getGroupName(currentGroupId);
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.group_delete_title)
+                .setMessage(getString(R.string.group_delete_text, name))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
+                    groupStore.deleteGroup(currentGroupId);
+                    loadGroup(groupStore.getActiveGroupId());
+                    refreshGroupDropdown();
+                })
+                .show();
+    }
+
+    // Shared input dialog for creating and renaming a group.
+    // excludeId is the group that may keep its current name, null for a new group
+    private void showGroupNameDialog(int titleId, String initialName, String excludeId, GroupNameCallback callback) {
+        TextInputLayout inputLayout = new TextInputLayout(this, null,
+                com.google.android.material.R.attr.textInputOutlinedStyle);
+        inputLayout.setHint(getString(R.string.group_name_hint));
+        TextInputEditText input = new TextInputEditText(inputLayout.getContext());
+        input.setSingleLine(true);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        input.setText(initialName);
+        input.setSelection(input.getText().length());
+        inputLayout.addView(input);
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        int sidePadding = (int) (20 * getResources().getDisplayMetrics().density);
+        container.setPadding(sidePadding, 0, sidePadding, 0);
+        container.addView(inputLayout);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(titleId)
+                .setView(container)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.confirm, null)
+                .show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = input.getText().toString().trim();
+            if (name.isEmpty()) {
+                inputLayout.setError(getString(R.string.group_name_empty));
+                return;
+            }
+            String existing = groupStore.findGroupIdByName(name);
+            if (existing != null && !existing.equals(excludeId)) {
+                inputLayout.setError(getString(R.string.group_name_exists));
+                return;
+            }
+            dialog.dismiss();
+            callback.onConfirm(name);
+        });
+
+        input.requestFocus();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+
+    private interface GroupNameCallback {
+        void onConfirm(String name);
     }
 
     private void addItem() {
@@ -382,6 +533,7 @@ public class EditActivity extends AppCompatActivity {
         activeGuide = new GuideSequence(this)
                 .add(R.id.bottom_import_btn, R.string.action_import, R.string.guide_import_text)
                 .add(R.id.bottom_password_btn, R.string.password, R.string.guide_password_text)
+                .add(R.id.group_row, R.string.guide_group_title, R.string.guide_group_text)
                 .add(R.id.edit_text_area, R.string.guide_edit_area_title, R.string.guide_edit_area_text)
                 .add(R.id.bottom_button_bar, R.string.guide_function_buttons_title, R.string.guide_function_buttons_text)
                 .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text);
@@ -409,9 +561,8 @@ public class EditActivity extends AppCompatActivity {
             return;
         }
 
-        StringPool.setNames(new ArrayList<>(cleanList));
-        initPoolPreferences.edit().putString("init", String.join(",", StringPool.initPool)).apply();
-        poolPreferences.edit().putString("pool", String.join(",", StringPool.pool)).apply();
+        groupStore.setInit(currentGroupId, cleanList);
+        groupStore.setActiveGroup(currentGroupId);
 
         StringBuilder result = new StringBuilder();
         for (String item : cleanList) {
