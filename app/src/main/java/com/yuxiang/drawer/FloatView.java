@@ -43,7 +43,7 @@ public class FloatView {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final StringPool stringPool;
     private final SharedPreferences locationPreferences;
-    private final SharedPreferences settingsPreferences;
+    private final SettingsStore settings;
     private final WindowManager.LayoutParams buttonParams;
     private final WindowManager.LayoutParams textParams;
 
@@ -96,7 +96,7 @@ public class FloatView {
         stringPool = new StringPool(appContext);
         windowManager = appWindowManager = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
         locationPreferences = appContext.getSharedPreferences("location", Context.MODE_PRIVATE);
-        settingsPreferences = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        settings = SettingsStore.get(appContext);
 
         int overlayType = windowType();
 
@@ -258,7 +258,7 @@ public class FloatView {
                         windowManager.updateViewLayout(floatButtonView, buttonParams);
                         return true;
                     case MotionEvent.ACTION_UP:
-                        if (settingsPreferences.getBoolean("is_remember_location", false)) {
+                        if (settings.isRememberLocation()) {
                             saveLocation();
                         }
                         // detect if it is a click event
@@ -319,6 +319,29 @@ public class FloatView {
         display.getSize(size);
         buttonParams.x = locationPreferences.getInt("locationX", size.x - 105);
         buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
+        clampLocation();
+    }
+
+    private boolean clampLocation() {
+        Display display = windowManager.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        int minVisible = (int) (24 * appContext.getResources().getDisplayMetrics().density);
+        // Before the view is measured its size is unknown, the minimum stands in for it
+        int width = floatButtonView == null || floatButtonView.getWidth() == 0
+                ? minVisible : floatButtonView.getWidth();
+        int height = floatButtonView == null || floatButtonView.getHeight() == 0
+                ? minVisible : floatButtonView.getHeight();
+
+        int x = Math.max(minVisible - width, Math.min(buttonParams.x, size.x - minVisible));
+        int y = Math.max(minVisible - height, Math.min(buttonParams.y, size.y - minVisible));
+        if (x == buttonParams.x && y == buttonParams.y) {
+            return false;
+        }
+        buttonParams.x = x;
+        buttonParams.y = y;
+        return true;
     }
 
     // true while the floating button window is registered with the window manager
@@ -373,6 +396,13 @@ public class FloatView {
     }
 
     public void saveLocation() {
+        if (clampLocation() && isFloatButtonShown()) {
+            try {
+                windowManager.updateViewLayout(floatButtonView, buttonParams);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Cannot move the floating button back onto the screen", e);
+            }
+        }
         locationPreferences.edit()
                 .putInt("locationX", buttonParams.x)
                 .putInt("locationY", buttonParams.y)

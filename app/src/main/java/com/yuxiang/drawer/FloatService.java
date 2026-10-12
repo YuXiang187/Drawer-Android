@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
@@ -42,9 +41,7 @@ public class FloatService extends Service {
     }
 
     public static boolean shouldKeepAlive(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("settings", MODE_PRIVATE);
-        return preferences.getBoolean("float_state", false)
-                && preferences.getBoolean("background_state", false)
+        return SettingsStore.get(context).isBackgroundKeepAliveRequested()
                 && canDrawOverlays(context);
     }
 
@@ -90,8 +87,7 @@ public class FloatService extends Service {
         }
 
         if (intent != null && ACTION_HIDE.equals(intent.getAction())) {
-            getSharedPreferences("settings", MODE_PRIVATE)
-                    .edit().putBoolean("float_state", false).apply();
+            SettingsStore.get(this).setFloatButtonEnabled(false);
             FloatView floatView = FloatView.getInstance(this);
             floatView.hideFloatButton();
             floatView.hideFloatText();
@@ -113,6 +109,8 @@ public class FloatService extends Service {
     @Override
     public void onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
+        // The draw history is batched in memory, make sure it survives the service going away
+        GroupStore.get(this).flushPools();
         super.onDestroy();
     }
 

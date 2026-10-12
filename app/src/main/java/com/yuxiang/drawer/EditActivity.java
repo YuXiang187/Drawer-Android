@@ -1,6 +1,5 @@
 package com.yuxiang.drawer;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -45,11 +44,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EditActivity extends AppCompatActivity {
-
-    private static final int MAX_GROUP_NAME_LENGTH = 30;
-    private static final String STATE_GROUP_ID = "state_group_id";
-    private static final String STATE_EDITOR_TEXT = "state_editor_text";
-    private static final String STATE_LOADED_CONTENT = "state_loaded_content";
+    private static final int MAX_ITEMS = 2000;
 
     EditText editText;
     EditText addInput;
@@ -59,7 +54,7 @@ public class EditActivity extends AppCompatActivity {
     ArrayAdapter<String> listAdapter;
     List<String> list = new ArrayList<>();
 
-    SharedPreferences settingsPreferences;
+    SettingsStore settings;
 
     GroupStore groupStore;
     MaterialAutoCompleteTextView groupDropdown;
@@ -83,7 +78,7 @@ public class EditActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_edit);
 
-        settingsPreferences = getSharedPreferences("settings", MODE_PRIVATE);
+        settings = SettingsStore.get(this);
 
         MaterialToolbar toolbar = findViewById(R.id.edit_topAppBar);
         setSupportActionBar(toolbar);
@@ -117,16 +112,20 @@ public class EditActivity extends AppCompatActivity {
                         Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                     } else {
                         String imported = content.trim();
+                        if (!withinLimit(imported)) {
+                            return;
+                        }
                         new MaterialAlertDialogBuilder(this)
                                 .setTitle(R.string.import_confirm_title)
                                 .setMessage(R.string.import_confirm_message)
                                 .setNeutralButton(R.string.cancel, null)
                                 .setNegativeButton(R.string.import_append, (dialogInterface, i) -> {
                                     String current = editText.getText().toString();
-                                    if (current.isEmpty()) {
-                                        editText.setText(imported);
-                                    } else {
-                                        editText.setText(current + (current.endsWith(",") ? "" : ",") + imported);
+                                    String merged = current.isEmpty()
+                                            ? imported
+                                            : current + (current.endsWith(",") ? "" : ",") + imported;
+                                    if (withinLimit(merged)) {
+                                        editText.setText(merged);
                                     }
                                 })
                                 .setPositiveButton(R.string.import_overwrite, (dialogInterface, i) -> {
@@ -164,12 +163,14 @@ public class EditActivity extends AppCompatActivity {
         selectedText = findViewById(R.id.selected_text);
         listView = findViewById(R.id.list_view);
 
+        addInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(50)});
+
         // Material CheckBox List
         listAdapter = new ArrayAdapter<>(this, R.layout.item_edit_list, R.id.item_checkbox, list);
         listView.setAdapter(listAdapter);
 
         // Group selector row
-        groupStore = new GroupStore(this);
+        groupStore = GroupStore.get(this);
         groupDropdown = findViewById(R.id.edit_group_dropdown);
         MaterialButton groupAddButton = findViewById(R.id.group_add_btn);
         MaterialButton groupRenameButton = findViewById(R.id.group_rename_btn);
@@ -290,7 +291,7 @@ public class EditActivity extends AppCompatActivity {
             restoreEditorState(savedInstanceState);
         }
 
-        if (!settingsPreferences.getBoolean("guide_edit_shown", false)) {
+        if (!settings.isEditGuideShown()) {
             showWelcomeGuide();
         }
     }
@@ -299,22 +300,22 @@ public class EditActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         // The editor state is not derived from the preferences, it has to survive a recreation
-        outState.putString(STATE_GROUP_ID, currentGroupId);
-        outState.putString(STATE_EDITOR_TEXT, editText.getText().toString());
-        outState.putString(STATE_LOADED_CONTENT, loadedContent);
+        outState.putString("state_group_id", currentGroupId);
+        outState.putString("state_editor_text", editText.getText().toString());
+        outState.putString("state_loaded_content", loadedContent);
     }
 
     // Restores the group and the unsaved edits after the Activity was recreated
     private void restoreEditorState(@NonNull Bundle savedState) {
-        String groupId = savedState.getString(STATE_GROUP_ID);
+        String groupId = savedState.getString("state_group_id");
         if (groupId == null || groupId.isEmpty() || !groupStore.getGroupIds().contains(groupId)) {
             return;
         }
         currentGroupId = groupId;
-        editText.setText(savedState.getString(STATE_EDITOR_TEXT, ""));
+        editText.setText(savedState.getString("state_editor_text", ""));
         addInput.setText("");
         refreshList();
-        loadedContent = savedState.getString(STATE_LOADED_CONTENT, editText.getText().toString());
+        loadedContent = savedState.getString("state_loaded_content", editText.getText().toString());
         refreshGroupDropdown();
     }
 
@@ -368,6 +369,24 @@ public class EditActivity extends AppCompatActivity {
         return !editText.getText().toString().equals(loadedContent);
     }
 
+    private boolean withinLimit(String text) {
+        if (countItems(text) > MAX_ITEMS) {
+            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
+
+    private static int countItems(String text) {
+        int count = 0;
+        for (String part : text.split(",")) {
+            if (!part.isEmpty()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     // Runs the action when the editor holds no unsaved edits, otherwise asks first.
     // The dropdown label has to be resynced on every dismissal: the Material dropdown
     // already moved its text to the tapped item, while the edit itself may not happen.
@@ -413,7 +432,7 @@ public class EditActivity extends AppCompatActivity {
         TextInputEditText input = new TextInputEditText(inputLayout.getContext());
         input.setSingleLine(true);
         input.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_GROUP_NAME_LENGTH)});
+        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
         input.setText(initialName);
         input.setSelection(input.getText().length());
         inputLayout.addView(input);
@@ -462,6 +481,10 @@ public class EditActivity extends AppCompatActivity {
         }
         if (text.contains(",")) {
             Toast.makeText(this, R.string.no_comma, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (list.size() >= MAX_ITEMS) {
+            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
             return;
         }
         String current = editText.getText().toString();
@@ -565,8 +588,7 @@ public class EditActivity extends AppCompatActivity {
                 .add(R.id.bottom_import_btn, R.string.action_import, R.string.guide_import_text)
                 .add(R.id.bottom_password_btn, R.string.password, R.string.guide_password_text)
                 .add(R.id.menu_save, R.string.action_save, R.string.guide_save_text)
-                .setOnFinishListener(() -> settingsPreferences.edit()
-                        .putBoolean("guide_edit_shown", true).apply());
+                .setOnFinishListener(() -> settings.setEditGuideShown(true));
         activeGuide.start();
     }
 
@@ -599,6 +621,10 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void apply() {
+        if (list.size() > MAX_ITEMS) {
+            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
+            return;
+        }
         List<String> cleanList = new ArrayList<>();
         for (String s : list) {
             if (!s.isEmpty()) {

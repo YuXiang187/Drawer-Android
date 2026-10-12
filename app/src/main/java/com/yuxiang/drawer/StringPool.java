@@ -14,7 +14,7 @@ public class StringPool {
     private final Random random = new Random();
 
     public StringPool(Context context) {
-        groupStore = new GroupStore(context);
+        groupStore = GroupStore.get(context);
     }
 
     public StringPool(GroupStore groupStore) {

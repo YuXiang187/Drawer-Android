@@ -127,4 +127,5 @@
     <string name="group_switch_title">Unsaved changes</string>
     <string name="group_switch_text">The list of group \"%s\" has unsaved changes. If you continue, these changes will be discarded.</string>
     <string name="group_created_hint">The group has been created</string>
+    <string name="list_too_long">You can save up to %1$d names</string>
 </resources>

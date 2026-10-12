@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    SharedPreferences settingsPreferences;
+    SettingsStore settings;
     PasswordManager passwordManager;
     ActivityResultLauncher<Intent> overlayPermissionLauncher;
     ActivityResultLauncher<String> notificationPermissionLauncher;
@@ -74,18 +74,18 @@ public class MainActivity extends AppCompatActivity {
 
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
             (preferences, key) -> {
-                if ("float_state".equals(key) && floatSwitch != null) {
-                    floatSwitch.setChecked(preferences.getBoolean(key, false));
-                } else if ("background_state".equals(key) && backgroundSwitch != null) {
-                    backgroundSwitch.setChecked(preferences.getBoolean(key, false));
+                if (SettingsStore.KEY_FLOAT_STATE.equals(key) && floatSwitch != null) {
+                    floatSwitch.setChecked(settings.isFloatButtonEnabled());
+                } else if (SettingsStore.KEY_BACKGROUND_STATE.equals(key) && backgroundSwitch != null) {
+                    backgroundSwitch.setChecked(settings.isBackgroundEnabled());
                 }
             };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settingsPreferences = getSharedPreferences("settings", MODE_PRIVATE);
+        settings = SettingsStore.get(this);
 
-        int themeIndex = settingsPreferences.getInt("theme", 0);
+        int themeIndex = settings.getThemeMode();
         AppCompatDelegate.setDefaultNightMode(themeIndex == 0 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : themeIndex);
 
         super.onCreate(savedInstanceState);
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(this, getString(R.string.text_no_permission), Toast.LENGTH_SHORT).show();
                             floatSwitch.setChecked(false);
-                            settingsPreferences.edit().putBoolean("float_state", false).apply();
+                            settings.setFloatButtonEnabled(false);
                         }
                     }
                 }
@@ -152,9 +152,9 @@ public class MainActivity extends AppCompatActivity {
         floatView = FloatView.getInstance(this);
 
         bootSwitch = findViewById(R.id.start_on_boot_switch);
-        bootSwitch.setChecked(settingsPreferences.getBoolean("boot_state", false));
+        bootSwitch.setChecked(settings.isStartOnBoot());
         bootSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            settingsPreferences.edit().putBoolean("boot_state", b).apply();
+            settings.setStartOnBoot(b);
             if (b && isInstalledOnExternalStorage()) {
                 // Apps on SD cards cannot auto-start after boot
                 new MaterialAlertDialogBuilder(this)
@@ -165,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         floatSwitch = findViewById(R.id.float_switch);
-        floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
+        floatSwitch.setChecked(settings.isFloatButtonEnabled());
         floatSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            settingsPreferences.edit().putBoolean("float_state", b).apply();
+            settings.setFloatButtonEnabled(b);
             if (b) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (!Settings.canDrawOverlays(this)) {
@@ -194,9 +194,9 @@ public class MainActivity extends AppCompatActivity {
         backgroundInfoButton.setOnClickListener(view -> showFloatModeTooltip());
 
         backgroundSwitch = findViewById(R.id.background_switch);
-        backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+        backgroundSwitch.setChecked(settings.isBackgroundEnabled());
         backgroundSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            settingsPreferences.edit().putBoolean("background_state", b).apply();
+            settings.setBackgroundEnabled(b);
             if (b) {
                 // Start with the foreground service; offer the accessibility alternative right after
                 FloatService.sync(this);
@@ -212,15 +212,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         locationSwitch = findViewById(R.id.location_switch);
-        locationSwitch.setChecked(settingsPreferences.getBoolean("is_remember_location", false));
+        locationSwitch.setChecked(settings.isRememberLocation());
         locationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            settingsPreferences.edit().putBoolean("is_remember_location", b).apply();
+            settings.setRememberLocation(b);
             if (b) {
                 floatView.saveLocation();
             }
         });
 
-        settingsPreferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+        settings.registerChangeListener(preferenceListener);
 
         resetLocationButton = findViewById(R.id.reset_location_button);
         TooltipCompat.setTooltipText(resetLocationButton, getString(R.string.action_reset_location));
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        groupStore = new GroupStore(this);
+        groupStore = GroupStore.get(this);
         groupDropdown = findViewById(R.id.group_dropdown);
         groupDropdown.setOnItemClickListener((parent, view, position, id) -> {
             if (position < 0 || position >= groupIds.size()) {
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         drawButton = findViewById(R.id.draw_btn);
         drawButton.setOnClickListener(view -> onDrawClicked());
 
-        if (settingsPreferences.getBoolean("float_state", false)) {
+        if (settings.isFloatButtonEnabled()) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)) {
                 floatView.showFloatButton();
                 maybeShowFloatButtonGuide();
@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
 
         FloatService.sync(this);
 
-        if (!settingsPreferences.getBoolean("guide_main_shown", false)) {
+        if (!settings.isWelcomeGuideShown()) {
             showWelcomeGuide();
         }
 
@@ -295,8 +295,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        floatSwitch.setChecked(settingsPreferences.getBoolean("float_state", false));
-        backgroundSwitch.setChecked(settingsPreferences.getBoolean("background_state", false));
+        floatSwitch.setChecked(settings.isFloatButtonEnabled());
+        backgroundSwitch.setChecked(settings.isBackgroundEnabled());
         refreshGroupDropdown();
         FloatService.sync(this);
     }
@@ -314,7 +314,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         dismissRichTooltip();
-        settingsPreferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+        settings.unregisterChangeListener(preferenceListener);
+        // The draw history is batched in memory, make sure it survives this Activity going away
+        if (groupStore != null) {
+            groupStore.flushPools();
+        }
         if (isFinishing() && !FloatService.shouldKeepAlive(this)) {
             floatView.hideFloatButton();
             floatView.hideFloatText();
@@ -340,8 +344,7 @@ public class MainActivity extends AppCompatActivity {
         if (isFinishing() || isDestroyed()) {
             return;
         }
-        if (!settingsPreferences.getBoolean("float_state", false)
-                || !settingsPreferences.getBoolean("background_state", false)) {
+        if (!settings.isBackgroundKeepAliveRequested()) {
             return;
         }
         if (FloatAccessibilityService.isEnabled(this) || FloatAccessibilityService.isConnected()) {
@@ -361,13 +364,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFloatModeTooltip() {
-        if (!settingsPreferences.getBoolean("float_state", false)) {
+        if (!settings.isFloatButtonEnabled()) {
             showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_off_title),
                     getString(R.string.tooltip_float_mode_off_text), null, null);
         } else if (floatView.usesAccessibilityOverlay()) {
             showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_accessibility_title),
                     getString(R.string.tooltip_float_mode_accessibility_text), null, null);
-        } else if (settingsPreferences.getBoolean("background_state", false)) {
+        } else if (settings.isBackgroundEnabled()) {
             showRichTooltip(backgroundInfoButton, getString(R.string.tooltip_float_mode_service_title),
                     getString(R.string.tooltip_float_mode_service_text), null, null);
         } else {
@@ -442,13 +445,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onWelcomeGuideFinished() {
-        settingsPreferences.edit().putBoolean("guide_main_shown", true).apply();
+        settings.setWelcomeGuideShown(true);
         maybeShowFloatButtonGuide();
     }
 
     private void maybeShowFloatButtonGuide() {
-        if (floatButtonGuide != null || settingsPreferences.getBoolean("guide_drag_shown", false)
-                || !settingsPreferences.getBoolean("guide_main_shown", false)
+        if (floatButtonGuide != null || settings.isDragGuideShown()
+                || !settings.isWelcomeGuideShown()
                 || !floatView.isFloatButtonShown()) {
             return;
         }
@@ -473,13 +476,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFloatButtonGuide(View button) {
-        if (floatButtonGuide != null || settingsPreferences.getBoolean("guide_drag_shown", false)) {
+        if (floatButtonGuide != null || settings.isDragGuideShown()) {
             return;
         }
         if (activeGuide != null && activeGuide.isRunning()) {
             return;
         }
-        settingsPreferences.edit().putBoolean("guide_drag_shown", true).apply();
+        settings.setDragGuideShown(true);
         floatView.hideFloatText();
         floatView.setTouchable(false);
         floatButtonGuide = new GuideOverlay(this);
@@ -505,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideFloatButton() {
-        settingsPreferences.edit().putBoolean("float_state", false).apply();
+        settings.setFloatButtonEnabled(false);
         floatView.hideFloatButton();
         floatView.hideFloatText();
         // hand the windows back to the layer the app owns
@@ -562,8 +565,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.menu_theme) {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setTitle(R.string.menu_theme)
-                    .setSingleChoiceItems(new String[]{getString(R.string.theme_system), getString(R.string.theme_white), getString(R.string.theme_black)}, settingsPreferences.getInt("theme", 0), (dialogInterface, i) -> {
-                        settingsPreferences.edit().putInt("theme", i).apply();
+                    .setSingleChoiceItems(new String[]{getString(R.string.theme_system), getString(R.string.theme_white), getString(R.string.theme_black)}, settings.getThemeMode(), (dialogInterface, i) -> {
+                        settings.setThemeMode(i);
                         dialogInterface.dismiss();
                         AppCompatDelegate.setDefaultNightMode(i == 0 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : i);
                     })

@@ -2,9 +2,9 @@ package com.yuxiang.drawer;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.util.Log;
@@ -28,6 +28,7 @@ import java.util.List;
  * <p>{@link MainActivity} lets the user choose between the two methods. If accessibility access
  * is not granted, {@link FloatService} is used instead.
  */
+@SuppressLint("AccessibilityPolicy")
 public class FloatAccessibilityService extends AccessibilityService {
     private static final String TAG = "FloatAccessibility";
 
@@ -87,14 +88,13 @@ public class FloatAccessibilityService extends AccessibilityService {
         }
 
         // Only take the floating button over when it is supposed to stay alive in the background
-        SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
-        if (!preferences.getBoolean("float_state", false)
-                || !preferences.getBoolean("background_state", false)) {
+        SettingsStore settings = SettingsStore.get(this);
+        if (!settings.isBackgroundKeepAliveRequested()) {
             return;
         }
 
         // Apply the saved theme before inflating the overlay views
-        int themeIndex = preferences.getInt("theme", 0);
+        int themeIndex = settings.getThemeMode();
         AppCompatDelegate.setDefaultNightMode(themeIndex == 0
                 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : themeIndex);
 

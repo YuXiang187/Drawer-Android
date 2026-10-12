@@ -2,11 +2,16 @@ package com.yuxiang.drawer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GroupStore {
     private static final String PREFS_NAME = "groups";
@@ -22,10 +27,34 @@ public class GroupStore {
     private static final String LEGACY_INIT_KEY = "init";
     private static final String LEGACY_POOL_KEY = "pool";
 
+    // Every single write rewrites the whole preferences file, so the draw history is kept in
+    // memory and written back in batches instead of once per draw.
+    private static final long POOL_FLUSH_DELAY_MS = 2000L;
+
+    private static volatile GroupStore instance;
+
     private final Context context;
     private final SharedPreferences groupPreferences;
+    private final Map<String, ArrayList<String>> poolCache = new HashMap<>();
+    private final Set<String> dirtyPools = new LinkedHashSet<>();
+    private final Handler flushHandler = new Handler(Looper.getMainLooper());
+    private final Runnable flushRunnable = this::flushPools;
+    private boolean flushScheduled;
 
-    public GroupStore(Context context) {
+    // The process wide store. Every caller has to share it, otherwise they would each keep
+    // their own copy of the draw history and overwrite each other on the next write.
+    public static GroupStore get(Context context) {
+        if (instance == null) {
+            synchronized (GroupStore.class) {
+                if (instance == null) {
+                    instance = new GroupStore(context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
+    }
+
+    private GroupStore(Context context) {
         this.context = context.getApplicationContext();
         groupPreferences = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         migrateLegacyListIfNeeded();
@@ -58,6 +87,19 @@ public class GroupStore {
                 .putString(PREFIX_INIT + id, String.join(",", init))
                 .putString(PREFIX_POOL + id, String.join(",", pool))
                 .commit();
+        deleteLegacyPreferences();
+    }
+
+    // The old single list files only served this migration once, they are never read again
+    private void deleteLegacyPreferences() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.deleteSharedPreferences(LEGACY_INIT_PREFS);
+            context.deleteSharedPreferences(LEGACY_POOL_PREFS);
+            return;
+        }
+        // deleteSharedPreferences() only exists from Android 7 on
+        context.getSharedPreferences(LEGACY_INIT_PREFS, Context.MODE_PRIVATE).edit().clear().apply();
+        context.getSharedPreferences(LEGACY_POOL_PREFS, Context.MODE_PRIVATE).edit().clear().apply();
     }
 
     // The ids in display order
@@ -69,18 +111,13 @@ public class GroupStore {
         return groupPreferences.getString(PREFIX_NAME + id, "");
     }
 
-    // The id used for drawing, guaranteed to point at an existing group
     public String getActiveGroupId() {
         List<String> ids = getGroupIds();
         if (ids.isEmpty()) {
             return "";
         }
         String active = groupPreferences.getString(KEY_ACTIVE, "");
-        if (!ids.contains(active)) {
-            active = ids.get(0);
-            groupPreferences.edit().putString(KEY_ACTIVE, active).apply();
-        }
-        return active;
+        return ids.contains(active) ? active : ids.get(0);
     }
 
     public void setActiveGroup(String id) {
@@ -96,7 +133,12 @@ public class GroupStore {
     // Writes the name list and rebuilds the pool so that new names are appended at the front
     public void setInit(String id, List<String> names) {
         ArrayList<String> clean = new ArrayList<>(names);
-        ArrayList<String> pool = syncPool(clean, getPool(id));
+        ArrayList<String> pool;
+        synchronized (poolCache) {
+            pool = syncPool(clean, getPool(id));
+            poolCache.put(id, pool);
+            dirtyPools.remove(id);
+        }
         groupPreferences.edit()
                 .putString(PREFIX_INIT + id, String.join(",", clean))
                 .putString(PREFIX_POOL + id, String.join(",", pool))
@@ -104,11 +146,71 @@ public class GroupStore {
     }
 
     public List<String> getPool(String id) {
-        return split(groupPreferences.getString(PREFIX_POOL + id, ""));
+        if (id == null || id.isEmpty()) {
+            return new ArrayList<>();
+        }
+        synchronized (poolCache) {
+            ArrayList<String> pool = poolCache.get(id);
+            if (pool == null) {
+                pool = split(groupPreferences.getString(PREFIX_POOL + id, ""));
+                poolCache.put(id, pool);
+            }
+            return new ArrayList<>(pool);
+        }
     }
 
     public void setPool(String id, List<String> pool) {
-        groupPreferences.edit().putString(PREFIX_POOL + id, String.join(",", pool)).apply();
+        if (id == null || id.isEmpty()) {
+            return;
+        }
+        synchronized (poolCache) {
+            poolCache.put(id, new ArrayList<>(pool));
+            dirtyPools.add(id);
+        }
+        schedulePoolFlush();
+    }
+
+    // At most one write per interval, so a burst of draws cannot grow the number of writes
+    // while still bounding how much history a killed process could lose
+    private void schedulePoolFlush() {
+        if (flushScheduled) {
+            return;
+        }
+        flushScheduled = true;
+        flushHandler.postDelayed(flushRunnable, POOL_FLUSH_DELAY_MS);
+    }
+
+    // Writes every changed history back in a single transaction. Called by the batch timer and
+    // when an Activity or Service goes away, so the history survives a restart.
+    public void flushPools() {
+        flushScheduled = false;
+        flushHandler.removeCallbacks(flushRunnable);
+
+        Map<String, String> values = new HashMap<>();
+        synchronized (poolCache) {
+            if (dirtyPools.isEmpty()) {
+                return;
+            }
+            for (String id : dirtyPools) {
+                ArrayList<String> pool = poolCache.get(id);
+                values.put(PREFIX_POOL + id, pool == null ? "" : String.join(",", pool));
+            }
+            dirtyPools.clear();
+        }
+
+        SharedPreferences.Editor editor = groupPreferences.edit();
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            editor.putString(entry.getKey(), entry.getValue());
+        }
+        editor.apply();
+    }
+
+    // Drops the cached history of a group that is gone, so it is never written back
+    private void discardPool(String id) {
+        synchronized (poolCache) {
+            poolCache.remove(id);
+            dirtyPools.remove(id);
+        }
     }
 
     public int getGroupCount() {
@@ -131,6 +233,10 @@ public class GroupStore {
                 .putString(PREFIX_INIT + id, String.join(",", init))
                 .putString(PREFIX_POOL + id, String.join(",", init))
                 .apply();
+        synchronized (poolCache) {
+            poolCache.put(id, new ArrayList<>(init));
+            dirtyPools.remove(id);
+        }
         return id;
     }
 
@@ -147,12 +253,17 @@ public class GroupStore {
             return false;
         }
 
+        // Resolved before the list changes, so the stored value is corrected when the group
+        // that is really in use disappears
+        String active = getActiveGroupId();
+        discardPool(id);
+
         SharedPreferences.Editor editor = groupPreferences.edit()
                 .putString(KEY_IDS, String.join(",", ids))
                 .remove(PREFIX_NAME + id)
                 .remove(PREFIX_INIT + id)
                 .remove(PREFIX_POOL + id);
-        if (id.equals(groupPreferences.getString(KEY_ACTIVE, ""))) {
+        if (id.equals(active)) {
             editor.putString(KEY_ACTIVE, ids.get(0));
         }
         editor.apply();
