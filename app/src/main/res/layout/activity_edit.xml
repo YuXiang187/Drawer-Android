@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_close"
+        app:navigationIcon="@drawable/ic_back"
         app:title="@string/lists_edit" />
 
     <LinearLayout
@@ -76,9 +76,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/edit_text_area_height"
         android:layout_marginStart="@dimen/spacing_l"
-        android:layout_marginTop="@dimen/spacing_m"
+        android:layout_marginTop="@dimen/spacing_xs"
         android:layout_marginEnd="@dimen/spacing_l"
-        android:layout_marginBottom="@dimen/spacing_m"
+        android:layout_marginBottom="@dimen/spacing_xs"
         android:gravity="top|start"
         android:hint="@string/lists_edit_tip"
         android:inputType="textMultiLine"
