@@ -125,5 +125,4 @@
     <string name="group_switch_title">未保存的更改</string>
     <string name="group_switch_text">分组“%s”的名单尚未保存，继续操作将丢弃这些更改。</string>
     <string name="group_created_hint">分组已创建</string>
-    <string name="list_too_long">最多只能保存 %1$d 个名称</string>
 </resources>

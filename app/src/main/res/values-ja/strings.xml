@@ -125,5 +125,4 @@
     <string name="group_switch_title">未保存の変更</string>
     <string name="group_switch_text">グループ「%s」のリストは未保存です。続けると変更は破棄されます。</string>
     <string name="group_created_hint">グループを作成しました</string>
-    <string name="list_too_long">保存できる名前は最大 %1$d 件です</string>
 </resources>

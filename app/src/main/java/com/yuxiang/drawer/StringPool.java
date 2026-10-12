@@ -17,10 +17,6 @@ public class StringPool {
         groupStore = GroupStore.get(context);
     }
 
-    public StringPool(GroupStore groupStore) {
-        this.groupStore = groupStore;
-    }
-
     // Draws one name from the active group using the Gaussian model
     public String draw() {
         String groupId = groupStore.getActiveGroupId();

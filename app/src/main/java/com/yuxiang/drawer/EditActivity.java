@@ -44,8 +44,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EditActivity extends AppCompatActivity {
-    private static final int MAX_ITEMS = 2000;
-
     EditText editText;
     EditText addInput;
     TextView totalText;
@@ -112,9 +110,6 @@ public class EditActivity extends AppCompatActivity {
                         Toast.makeText(this, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                     } else {
                         String imported = content.trim();
-                        if (!withinLimit(imported)) {
-                            return;
-                        }
                         new MaterialAlertDialogBuilder(this)
                                 .setTitle(R.string.import_confirm_title)
                                 .setMessage(R.string.import_confirm_message)
@@ -124,9 +119,7 @@ public class EditActivity extends AppCompatActivity {
                                     String merged = current.isEmpty()
                                             ? imported
                                             : current + (current.endsWith(",") ? "" : ",") + imported;
-                                    if (withinLimit(merged)) {
-                                        editText.setText(merged);
-                                    }
+                                    editText.setText(merged);
                                 })
                                 .setPositiveButton(R.string.import_overwrite, (dialogInterface, i) -> {
                                     editText.setText(imported);
@@ -369,24 +362,6 @@ public class EditActivity extends AppCompatActivity {
         return !editText.getText().toString().equals(loadedContent);
     }
 
-    private boolean withinLimit(String text) {
-        if (countItems(text) > MAX_ITEMS) {
-            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
-            return false;
-        }
-        return true;
-    }
-
-    private static int countItems(String text) {
-        int count = 0;
-        for (String part : text.split(",")) {
-            if (!part.isEmpty()) {
-                count++;
-            }
-        }
-        return count;
-    }
-
     // Runs the action when the editor holds no unsaved edits, otherwise asks first.
     // The dropdown label has to be resynced on every dismissal: the Material dropdown
     // already moved its text to the tapped item, while the edit itself may not happen.
@@ -481,10 +456,6 @@ public class EditActivity extends AppCompatActivity {
         }
         if (text.contains(",")) {
             Toast.makeText(this, R.string.no_comma, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (list.size() >= MAX_ITEMS) {
-            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
             return;
         }
         String current = editText.getText().toString();
@@ -621,10 +592,6 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void apply() {
-        if (list.size() > MAX_ITEMS) {
-            Toast.makeText(this, getString(R.string.list_too_long, MAX_ITEMS), Toast.LENGTH_LONG).show();
-            return;
-        }
         List<String> cleanList = new ArrayList<>();
         for (String s : list) {
             if (!s.isEmpty()) {
