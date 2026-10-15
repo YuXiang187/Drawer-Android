@@ -594,8 +594,9 @@ public class EditActivity extends AppCompatActivity {
     private void apply() {
         List<String> cleanList = new ArrayList<>();
         for (String s : list) {
-            if (!s.isEmpty()) {
-                cleanList.add(s);
+            String item = s.trim();
+            if (!item.isEmpty()) {
+                cleanList.add(item);
             }
         }
         if (cleanList.isEmpty()) {

@@ -322,8 +322,9 @@ public class GroupStore {
             return result;
         }
         for (String part : value.split(",")) {
-            if (!part.isEmpty()) {
-                result.add(part);
+            String name = part.trim();
+            if (!name.isEmpty()) {
+                result.add(name);
             }
         }
         return result;

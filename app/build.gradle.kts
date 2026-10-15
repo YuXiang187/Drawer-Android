@@ -10,7 +10,7 @@ android {
         applicationId = "com.yuxiang.drawer"
         minSdk = 21
         targetSdk = 35
-        versionCode = 2
+        versionCode = 24
         versionName = "2.4"
     }
 
