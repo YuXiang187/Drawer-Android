@@ -20,19 +20,17 @@ public class StringPool {
     // Draws one name from the active group using the Gaussian model
     public String draw() {
         String groupId = groupStore.getActiveGroupId();
-        ArrayList<String> init = new ArrayList<>(groupStore.getInit(groupId));
-        if (init.isEmpty()) {
+        ArrayList<String> pool = groupStore.getPoolForUpdate(groupId);
+        if (pool.isEmpty()) {
             return "";
         }
-
-        ArrayList<String> pool = GroupStore.syncPool(init, groupStore.getPool(groupId));
 
         int index = pickIndex(pool);
         String value = pool.get(index);
 
-        pool.remove(value);
+        pool.remove(index);
         pool.add(value);
-        groupStore.setPool(groupId, pool);
+        groupStore.markPoolDirty(groupId);
 
         return value;
     }
@@ -40,9 +38,9 @@ public class StringPool {
     // used by the rolling animation
     public String get() {
         String groupId = groupStore.getActiveGroupId();
-        ArrayList<String> pool = new ArrayList<>(groupStore.getPool(groupId));
+        List<String> pool = groupStore.getPoolReference(groupId);
         if (pool.isEmpty()) {
-            pool = new ArrayList<>(groupStore.getInit(groupId));
+            pool = groupStore.getPoolForUpdate(groupId);
         }
         if (pool.isEmpty()) {
             return "";
@@ -53,7 +51,7 @@ public class StringPool {
     // Up to maxNames entries spread evenly over the active pool, for size estimates
     public List<String> sample(int maxNames) {
         String groupId = groupStore.getActiveGroupId();
-        List<String> pool = groupStore.getPool(groupId);
+        List<String> pool = groupStore.getPoolReference(groupId);
         if (pool.isEmpty()) {
             pool = groupStore.getInit(groupId);
         }

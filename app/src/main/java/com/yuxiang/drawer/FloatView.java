@@ -520,8 +520,23 @@ public class FloatView {
         isRunning = true;
         fab.setEnabled(false);
 
-        showFloatText();
         applyRollingTextSize();
+
+        List<String> sample = stringPool.sample(ROLLING_SAMPLE_COUNT);
+        if (!sample.isEmpty()) {
+            String widest = sample.get(0);
+            float widestWidth = textView.getPaint().measureText(widest);
+            for (String name : sample) {
+                float width = textView.getPaint().measureText(name);
+                if (width > widestWidth) {
+                    widest = name;
+                    widestWidth = width;
+                }
+            }
+            applyTextGeometry(widest);
+        }
+
+        showFloatText();
         textView.setTextColor(Color.GRAY);
         progressValue = 100;
         linearProgressIndicator.setProgressCompat(100, false);

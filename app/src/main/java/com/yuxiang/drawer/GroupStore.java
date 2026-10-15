@@ -159,12 +159,46 @@ public class GroupStore {
         }
     }
 
-    public void setPool(String id, List<String> pool) {
+    public List<String> getPoolReference(String id) {
+        if (id == null || id.isEmpty()) {
+            return new ArrayList<>();
+        }
+        synchronized (poolCache) {
+            ArrayList<String> pool = poolCache.get(id);
+            if (pool == null) {
+                pool = split(groupPreferences.getString(PREFIX_POOL + id, ""));
+                poolCache.put(id, pool);
+            }
+            return pool;
+        }
+    }
+
+    public ArrayList<String> getPoolForUpdate(String id) {
+        if (id == null || id.isEmpty()) {
+            return new ArrayList<>();
+        }
+        synchronized (poolCache) {
+            ArrayList<String> pool = poolCache.get(id);
+            if (pool == null) {
+                pool = split(groupPreferences.getString(PREFIX_POOL + id, ""));
+                poolCache.put(id, pool);
+            }
+            if (pool.isEmpty()) {
+                List<String> init = getInit(id);
+                if (!init.isEmpty()) {
+                    pool = new ArrayList<>(init);
+                    poolCache.put(id, pool);
+                }
+            }
+            return pool;
+        }
+    }
+
+    public void markPoolDirty(String id) {
         if (id == null || id.isEmpty()) {
             return;
         }
         synchronized (poolCache) {
-            poolCache.put(id, new ArrayList<>(pool));
             dirtyPools.add(id);
         }
         schedulePoolFlush();
