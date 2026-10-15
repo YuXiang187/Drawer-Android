@@ -50,6 +50,22 @@ public class StringPool {
         return pool.get(random.nextInt(pool.size()));
     }
 
+    // Up to maxNames entries spread evenly over the active pool, for size estimates
+    public List<String> sample(int maxNames) {
+        String groupId = groupStore.getActiveGroupId();
+        List<String> pool = groupStore.getPool(groupId);
+        if (pool.isEmpty()) {
+            pool = groupStore.getInit(groupId);
+        }
+        int size = pool.size();
+        int count = Math.min(size, maxNames);
+        ArrayList<String> result = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            result.add(pool.get((int) ((long) i * size / count)));
+        }
+        return result;
+    }
+
     private int pickIndex(List<String> pool) {
         for (; ; ) {
             double stddev = pool.size() / STDDEV_SCALING_FACTOR;

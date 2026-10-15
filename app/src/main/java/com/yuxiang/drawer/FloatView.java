@@ -30,12 +30,16 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.List;
+
 public class FloatView {
     private static final String TAG = "FloatView";
     private static final long COUNTDOWN_INTERVAL_MS = 12;
     private static final long ROLLING_INTERVAL_MS = 60;
     private static final int ROLLING_STEPS = 8;
     private static final float MAX_WINDOW_WIDTH_RATIO = 0.85f;
+    private static final int ROLLING_SAMPLE_COUNT = 64;
+    private static final float MIN_ROLLING_TEXT_SCALE = 0.45f;
 
     @SuppressLint("StaticFieldLeak")
     private static FloatView instance;
@@ -371,6 +375,30 @@ public class FloatView {
         }
     }
 
+    // Shrinks the rolling text so a name of average sampled width fits the window
+    private void applyRollingTextSize() {
+        float baseSize = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_text_size);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, baseSize);
+
+        List<String> sample = stringPool.sample(ROLLING_SAMPLE_COUNT);
+        if (sample.isEmpty()) {
+            return;
+        }
+        float totalWidth = 0;
+        for (String name : sample) {
+            totalWidth += textView.getPaint().measureText(name);
+        }
+        if (totalWidth <= 0) {
+            return;
+        }
+
+        float padding = 2 * appContext.getResources().getDimensionPixelSize(R.dimen.float_window_padding);
+        float averageWidth = totalWidth / sample.size();
+        float scale = (maxTextWindowWidth() - padding) / averageWidth;
+        scale = Math.max(MIN_ROLLING_TEXT_SCALE, Math.min(scale, 1f));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, baseSize * scale);
+    }
+
     private int maxTextWindowWidth() {
         Display display = windowManager.getDefaultDisplay();
         Point size = new Point();
@@ -493,6 +521,7 @@ public class FloatView {
         fab.setEnabled(false);
 
         showFloatText();
+        applyRollingTextSize();
         textView.setTextColor(Color.GRAY);
         progressValue = 100;
         linearProgressIndicator.setProgressCompat(100, false);
