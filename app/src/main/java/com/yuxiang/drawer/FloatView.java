@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
@@ -34,6 +35,7 @@ public class FloatView {
     private static final long COUNTDOWN_INTERVAL_MS = 12;
     private static final long ROLLING_INTERVAL_MS = 60;
     private static final int ROLLING_STEPS = 8;
+    private static final float MAX_WINDOW_WIDTH_RATIO = 0.85f;
 
     @SuppressLint("StaticFieldLeak")
     private static FloatView instance;
@@ -344,6 +346,41 @@ public class FloatView {
         return true;
     }
 
+    private void applyTextGeometry(String text) {
+        int textSizePx = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_text_size);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx);
+
+        int padding = 2 * appContext.getResources().getDimensionPixelSize(R.dimen.float_window_padding);
+        int minWidth = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_width);
+        int maxWidth = maxTextWindowWidth();
+
+        float textWidth = textView.getPaint().measureText(text);
+        float wanted = textWidth + padding;
+        // the text is only shrunk when the maximum width is reached
+        if (wanted > maxWidth) {
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx * (maxWidth - padding) / textWidth);
+        }
+
+        int width = (int) Math.min(Math.max(wanted, minWidth), maxWidth);
+        if (width == textParams.width) {
+            return;
+        }
+        textParams.width = width;
+        if (isFloatTextShown()) {
+            windowManager.updateViewLayout(floatWindowView, textParams);
+        }
+    }
+
+    private int maxTextWindowWidth() {
+        Display display = windowManager.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int minWidth = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_width);
+        int cap = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_max_width);
+        int width = Math.max(minWidth, Math.min((int) (size.x * MAX_WINDOW_WIDTH_RATIO), cap));
+        return Math.min(width, size.x);
+    }
+
     // true while the floating button window is registered with the window manager
     public boolean isFloatButtonShown() {
         return floatButtonView.getParent() != null;
@@ -433,6 +470,9 @@ public class FloatView {
         if (isFloatTextShown()) {
             removeWindow(floatWindowView);
         }
+        textParams.width = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_width);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                appContext.getResources().getDimensionPixelSize(R.dimen.float_window_text_size));
     }
 
     public void hideFloatButton() {
@@ -474,6 +514,7 @@ public class FloatView {
                     Toast.makeText(appContext, R.string.text_is_null, Toast.LENGTH_SHORT).show();
                     return;
                 }
+                applyTextGeometry(text);
             } else {
                 // rolling frames
                 text = stringPool.get();

@@ -39,7 +39,9 @@
                 android:id="@+id/edit_group_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
                 android:inputType="none"
+                android:singleLine="true"
                 android:textAppearance="?attr/textAppearanceBodyLarge" />
         </com.google.android.material.textfield.TextInputLayout>
 

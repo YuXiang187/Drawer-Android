@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="float_window_width">350dp</dimen>
+    <dimen name="float_window_max_width">600dp</dimen>
+    <dimen name="float_window_padding">40dp</dimen>
+    <dimen name="float_window_text_size">64sp</dimen>
     <dimen name="list_item_min_height">56dp</dimen>
     <dimen name="main_content_bottom_compensation">88dp</dimen>
     <dimen name="edit_text_area_height">122dp</dimen>
