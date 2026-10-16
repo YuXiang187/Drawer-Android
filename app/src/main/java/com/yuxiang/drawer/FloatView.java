@@ -528,8 +528,12 @@ public class FloatView {
     private final Runnable rollingRunnable = new Runnable() {
         @Override
         public void run() {
+            if (rollingStep >= ROLLING_STEPS) {
+                finishRolling();
+                return;
+            }
             String text;
-            if (rollingStep >= ROLLING_STEPS - 1) {
+            if (rollingStep == ROLLING_STEPS - 1) {
                 // last frame
                 text = draw();
                 if (text.isEmpty()) {
@@ -544,11 +548,7 @@ public class FloatView {
             }
             textView.setText(text);
             rollingStep++;
-            if (rollingStep >= ROLLING_STEPS) {
-                finishRolling();
-            } else {
-                handler.postDelayed(this, ROLLING_INTERVAL_MS);
-            }
+            handler.postDelayed(this, ROLLING_INTERVAL_MS);
         }
     };
 
