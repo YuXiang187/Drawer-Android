@@ -12,3 +12,6 @@ app/release/
 
 # local settings
 local.properties
+
+# gradle build
+build/

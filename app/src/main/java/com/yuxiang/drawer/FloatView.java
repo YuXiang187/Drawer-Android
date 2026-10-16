@@ -7,13 +7,14 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -178,6 +179,7 @@ public class FloatView {
     }
 
     // the window type of both overlay windows, depending on the permission that shows them
+    @SuppressWarnings("deprecation")
     private int windowType() {
         if (accessibilityWindowManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             return WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
@@ -318,19 +320,24 @@ public class FloatView {
         }
     }
 
+    private Point displaySize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Rect bounds = windowManager.getMaximumWindowMetrics().getBounds();
+            return new Point(bounds.width(), bounds.height());
+        }
+        DisplayMetrics displayMetrics = appContext.getResources().getDisplayMetrics();
+        return new Point(displayMetrics.widthPixels, displayMetrics.heightPixels);
+    }
+
     private void resetLocation() {
-        Display display = windowManager.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
+        Point size = displaySize();
         buttonParams.x = locationPreferences.getInt("locationX", size.x - 105);
         buttonParams.y = locationPreferences.getInt("locationY", size.y - 175);
         clampLocation();
     }
 
     private boolean clampLocation() {
-        Display display = windowManager.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
+        Point size = displaySize();
 
         int minVisible = (int) (24 * appContext.getResources().getDisplayMetrics().density);
         // Before the view is measured its size is unknown, the minimum stands in for it
@@ -377,9 +384,7 @@ public class FloatView {
     }
 
     private int maxTextWindowWidth() {
-        Display display = windowManager.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
+        Point size = displaySize();
         int minWidth = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_width);
         int cap = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_max_width);
         int width = Math.max(minWidth, Math.min((int) (size.x * MAX_WINDOW_WIDTH_RATIO), cap));

@@ -40,7 +40,7 @@
 - 目标版本：Android 15（API 35）
 - UI 框架：Material Design 3
 - 构建工具：Gradle（Kotlin DSL）
-- 依赖：AndroidX AppCompat 1.7.0、Material 1.12.0
+- 依赖：AndroidX AppCompat 1.7.1、Material 1.13.0
 
 权限说明：
 
