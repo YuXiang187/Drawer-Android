@@ -39,7 +39,6 @@ public class FloatView {
     private static final int ROLLING_STEPS = 8;
     private static final float MAX_WINDOW_WIDTH_RATIO = 0.85f;
     private static final int ROLLING_SAMPLE_COUNT = 64;
-    private static final float MIN_ROLLING_TEXT_SCALE = 0.45f;
 
     @SuppressLint("StaticFieldLeak")
     private static FloatView instance;
@@ -359,10 +358,12 @@ public class FloatView {
         int maxWidth = maxTextWindowWidth();
 
         float textWidth = textView.getPaint().measureText(text);
-        float wanted = textWidth + padding;
+        float wanted = (float) Math.ceil(textWidth) + padding;
         // the text is only shrunk when the maximum width is reached
         if (wanted > maxWidth) {
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx * (maxWidth - padding) / textWidth);
+            int available = maxWidth - padding - 1;
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx * available / textWidth);
+            wanted = maxWidth;
         }
 
         int width = (int) Math.min(Math.max(wanted, minWidth), maxWidth);
@@ -373,30 +374,6 @@ public class FloatView {
         if (isFloatTextShown()) {
             windowManager.updateViewLayout(floatWindowView, textParams);
         }
-    }
-
-    // Shrinks the rolling text so a name of average sampled width fits the window
-    private void applyRollingTextSize() {
-        float baseSize = appContext.getResources().getDimensionPixelSize(R.dimen.float_window_text_size);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, baseSize);
-
-        List<String> sample = stringPool.sample(ROLLING_SAMPLE_COUNT);
-        if (sample.isEmpty()) {
-            return;
-        }
-        float totalWidth = 0;
-        for (String name : sample) {
-            totalWidth += textView.getPaint().measureText(name);
-        }
-        if (totalWidth <= 0) {
-            return;
-        }
-
-        float padding = 2 * appContext.getResources().getDimensionPixelSize(R.dimen.float_window_padding);
-        float averageWidth = totalWidth / sample.size();
-        float scale = (maxTextWindowWidth() - padding) / averageWidth;
-        scale = Math.max(MIN_ROLLING_TEXT_SCALE, Math.min(scale, 1f));
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, baseSize * scale);
     }
 
     private int maxTextWindowWidth() {
@@ -520,20 +497,9 @@ public class FloatView {
         isRunning = true;
         fab.setEnabled(false);
 
-        applyRollingTextSize();
-
         List<String> sample = stringPool.sample(ROLLING_SAMPLE_COUNT);
         if (!sample.isEmpty()) {
-            String widest = sample.get(0);
-            float widestWidth = textView.getPaint().measureText(widest);
-            for (String name : sample) {
-                float width = textView.getPaint().measureText(name);
-                if (width > widestWidth) {
-                    widest = name;
-                    widestWidth = width;
-                }
-            }
-            applyTextGeometry(widest);
+            applyTextGeometry(widestOf(sample));
         }
 
         showFloatText();
@@ -544,6 +510,19 @@ public class FloatView {
         rollingStep = 0;
         handler.removeCallbacks(countdownRunnable);
         handler.post(rollingRunnable);
+    }
+
+    private String widestOf(List<String> names) {
+        String widest = names.get(0);
+        float widestWidth = textView.getPaint().measureText(widest);
+        for (String name : names) {
+            float width = textView.getPaint().measureText(name);
+            if (width > widestWidth) {
+                widest = name;
+                widestWidth = width;
+            }
+        }
+        return widest;
     }
 
     private final Runnable rollingRunnable = new Runnable() {
